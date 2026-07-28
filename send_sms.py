@@ -1,12 +1,15 @@
 """
-Send a single SMS message to a list of members via the chinguisoft API,
-with a fixed delay between each message.
+Trigger the chinguisoft SMS Campaign API for a list of members, one send
+per member with a fixed delay between each.
+
+The message text itself is NOT sent in the API request - it is defined on
+the chinguisoft dashboard for the campaign identified by the campaign key.
+This script only triggers a send to each phone number, optionally with a
+link (e.g. a donation/contribution link) inserted into the message.
 
 Usage:
-    python send_sms.py --members members.csv --message message.txt
-
-members.csv columns: name,phone
-message.txt: plain text of the single message sent to everyone
+    python send_sms.py --members members.csv
+    python send_sms.py --members members.csv --url https://example.com/donate
 """
 
 import argparse
@@ -21,7 +24,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-CHINGUISOFT_API_URL = os.environ.get("CHINGUISOFT_API_URL", "")
+CHINGUISOFT_API_URL = os.environ.get("CHINGUISOFT_API_URL", "https://chinguisoft.com")
 CHINGUISOFT_CAMPAIGN_KEY = os.environ.get("CHINGUISOFT_CAMPAIGN_KEY", "")
 CHINGUISOFT_CAMPAIGN_TOKEN = os.environ.get("CHINGUISOFT_CAMPAIGN_TOKEN", "")
 
@@ -29,29 +32,26 @@ DELAY_SECONDS = 60
 LOG_FILE = "sent_log.csv"
 
 
-def send_one(phone: str, message: str) -> tuple[bool, str]:
-    """Send a single SMS via chinguisoft. Returns (success, raw_response_or_error).
+def send_one(phone: str, lang: str, url: str | None) -> tuple[bool, str]:
+    """Trigger one SMS send via the chinguisoft campaign API.
 
-    TODO: the endpoint URL below is unconfirmed - chinguisoft.com blocks
-    automated doc fetches. Verify the exact path and whether campaign_key/
-    Campaign-token are sent as headers or as body fields against their
-    "sample code" panel, then update this function accordingly.
+    Returns (success, detail) where detail is the response body (e.g. the
+    remaining balance) on success, or an error message on failure.
     """
-    if not CHINGUISOFT_API_URL or not CHINGUISOFT_CAMPAIGN_KEY or not CHINGUISOFT_CAMPAIGN_TOKEN:
-        return False, "CHINGUISOFT_API_URL / CHINGUISOFT_CAMPAIGN_KEY / CHINGUISOFT_CAMPAIGN_TOKEN not configured in .env"
+    if not CHINGUISOFT_CAMPAIGN_KEY or not CHINGUISOFT_CAMPAIGN_TOKEN:
+        return False, "CHINGUISOFT_CAMPAIGN_KEY / CHINGUISOFT_CAMPAIGN_TOKEN not configured in .env"
 
+    endpoint = f"{CHINGUISOFT_API_URL}/api/sms/campaign/{CHINGUISOFT_CAMPAIGN_KEY}"
     headers = {
-        "campaign_key": CHINGUISOFT_CAMPAIGN_KEY,
         "Campaign-token": CHINGUISOFT_CAMPAIGN_TOKEN,
         "Content-Type": "application/json",
     }
-    payload = {
-        "phone": phone,
-        "message": message,
-    }
+    payload = {"phone": phone, "lang": lang}
+    if url:
+        payload["url"] = url
 
     try:
-        response = requests.post(CHINGUISOFT_API_URL, json=payload, headers=headers, timeout=15)
+        response = requests.post(endpoint, json=payload, headers=headers, timeout=15)
         response.raise_for_status()
         return True, response.text
     except requests.RequestException as exc:
@@ -79,20 +79,17 @@ def log_result(name: str, phone: str, success: bool, detail: str) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Send one SMS to a list of members, one per minute.")
+    parser = argparse.ArgumentParser(description="Trigger the chinguisoft campaign SMS for a list of members, one per minute.")
     parser.add_argument("--members", default="members.csv", help="CSV file with name,phone columns")
-    parser.add_argument("--message", default="message.txt", help="Text file containing the message")
+    parser.add_argument("--lang", default="ar", help="Message language (default: ar)")
+    parser.add_argument("--url", default=None, help="Optional link to insert into the message (e.g. a donation link)")
     parser.add_argument("--delay", type=int, default=DELAY_SECONDS, help="Seconds to wait between messages")
     args = parser.parse_args()
 
     if not os.path.exists(args.members):
         sys.exit(f"Members file not found: {args.members}")
-    if not os.path.exists(args.message):
-        sys.exit(f"Message file not found: {args.message}")
 
     members = load_members(args.members)
-    with open(args.message, encoding="utf-8") as f:
-        message = f.read().strip()
 
     print(f"Loaded {len(members)} members. Sending with {args.delay}s delay between messages.")
 
@@ -104,9 +101,9 @@ def main() -> None:
             print(f"[{i}/{len(members)}] Skipping row with empty phone (name={name!r})")
             continue
 
-        success, detail = send_one(phone, message)
+        success, detail = send_one(phone, args.lang, args.url)
         status = "OK" if success else "FAILED"
-        print(f"[{i}/{len(members)}] {status} -> {name} ({phone})")
+        print(f"[{i}/{len(members)}] {status} -> {name} ({phone}) {detail}")
         log_result(name, phone, success, detail)
 
         if i < len(members):
