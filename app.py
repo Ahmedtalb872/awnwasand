@@ -2,21 +2,39 @@
 Local web UI to run the chinguisoft SMS campaign against members.csv.
 
 The chinguisoft campaign token is loaded from .env and used only on the
-server side - it is never sent to the browser. Run locally with
-`python app.py` and open http://localhost:5000.
+server side - it is never sent to the browser. Run on a computer you
+control with `python app.py`, then open http://<that computer's local
+IP>:5000 from your phone over the same Wi-Fi network.
+
+Set APP_PASSWORD in .env to require a password before the page (and the
+send button) can be used - important once the app is reachable from
+other devices on the network, not just localhost.
 """
 
 import csv
 import os
+import secrets
 import threading
 import time
 from datetime import datetime
+from functools import wraps
 
-from flask import Flask, jsonify, render_template_string, request
+from flask import Flask, jsonify, redirect, render_template_string, request, session
 
 import send_sms
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("APP_SECRET_KEY") or secrets.token_hex(32)
+APP_PASSWORD = os.environ.get("APP_PASSWORD", "")
+
+
+def login_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if APP_PASSWORD and not session.get("authed"):
+            return redirect("/login")
+        return view(*args, **kwargs)
+    return wrapped
 
 STATE_LOCK = threading.Lock()
 state = {
@@ -69,16 +87,37 @@ def run_campaign(delay: int, lang: str, url: str | None) -> None:
         state["running"] = False
 
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+    if request.method == "POST":
+        if request.form.get("password") == APP_PASSWORD:
+            session["authed"] = True
+            return redirect("/")
+        error = "كلمة المرور غير صحيحة"
+    return render_template_string(LOGIN_PAGE, error=error)
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
+
+
 @app.route("/")
+@login_required
 def index():
     members = load_members()
     configured = bool(
         os.environ.get("CHINGUISOFT_CAMPAIGN_KEY") and os.environ.get("CHINGUISOFT_CAMPAIGN_TOKEN")
     )
-    return render_template_string(PAGE, members=members, count=len(members), configured=configured)
+    return render_template_string(
+        PAGE, members=members, count=len(members), configured=configured, protected=bool(APP_PASSWORD)
+    )
 
 
 @app.route("/api/start", methods=["POST"])
+@login_required
 def start():
     with STATE_LOCK:
         if state["running"]:
@@ -98,10 +137,50 @@ def start():
 
 
 @app.route("/api/status")
+@login_required
 def status():
     with STATE_LOCK:
         return jsonify(state)
 
+
+LOGIN_PAGE = """
+<!doctype html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تسجيل الدخول - عون وسند</title>
+<style>
+  :root{ --bg:#221D3F; --panel:#2B2550; --line:#3E3670; --accent:#F0ACA0; --text:#F8F3EF; --text-dim:#CFC7DE; }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:var(--bg); color:var(--text); font-family:'Segoe UI', Tahoma, sans-serif;
+    padding:24px;
+  }
+  form{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:28px; width:100%; max-width:320px; }
+  h1{ font-size:1.1rem; margin:0 0 18px; }
+  input{
+    width:100%; background:var(--bg); border:1px solid var(--line); color:var(--text);
+    border-radius:8px; padding:10px 12px; font-size:1rem; margin-bottom:14px;
+  }
+  button{
+    width:100%; background:var(--accent); color:#221D3F; border:none; border-radius:100px;
+    padding:11px; font-weight:700; font-size:1rem; cursor:pointer;
+  }
+  .error{ color:#F08A8A; font-size:.85rem; margin-bottom:12px; }
+</style>
+</head>
+<body>
+  <form method="post">
+    <h1>حملة SMS - عون وسند</h1>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <input type="password" name="password" placeholder="كلمة المرور" autofocus required>
+    <button type="submit">دخول</button>
+  </form>
+</body>
+</html>
+"""
 
 PAGE = """
 <!doctype html>
@@ -163,7 +242,9 @@ PAGE = """
 </head>
 <body>
   <h1>حملة SMS - جمعية عون وسند</h1>
-  <p class="sub">إرسال حملة chinguisoft لجميع أعضاء القائمة، رسالة واحدة كل مدة تحدّدها.</p>
+  <p class="sub">إرسال حملة chinguisoft لجميع أعضاء القائمة، رسالة واحدة كل مدة تحدّدها.
+    {% if protected %}&nbsp;·&nbsp;<a href="/logout" style="color:var(--text-dim)">تسجيل خروج</a>{% endif %}
+  </p>
 
   {% if not configured %}
   <div class="warn">
@@ -265,4 +346,6 @@ poll();
 
 
 if __name__ == "__main__":
-    app.run(debug=False, port=5000)
+    if not APP_PASSWORD:
+        print("WARNING: APP_PASSWORD not set in .env - anyone on your network can open this page and send SMS.")
+    app.run(debug=False, host="0.0.0.0", port=5000)
