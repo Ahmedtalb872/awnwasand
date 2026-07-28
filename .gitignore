@@ -1,0 +1,4 @@
+.env
+sent_log.csv
+members.csv
+__pycache__/
