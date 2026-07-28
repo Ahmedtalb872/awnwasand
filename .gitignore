@@ -1,4 +1,8 @@
 .env
 sent_log.csv
 members.csv
+members_raw.txt
+members_parsed.csv
+members_unpaid.csv
+members_all.csv
 __pycache__/
