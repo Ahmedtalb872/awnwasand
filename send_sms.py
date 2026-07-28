@@ -1,5 +1,5 @@
 """
-Send a single SMS message to a list of members via the chingsoft API,
+Send a single SMS message to a list of members via the chinguisoft API,
 with a fixed delay between each message.
 
 Usage:
@@ -21,35 +21,37 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-CHINGSOFT_API_URL = os.environ.get("CHINGSOFT_API_URL", "")
-CHINGSOFT_API_KEY = os.environ.get("CHINGSOFT_API_KEY", "")
-CHINGSOFT_SENDER_NAME = os.environ.get("CHINGSOFT_SENDER_NAME", "")
+CHINGUISOFT_API_URL = os.environ.get("CHINGUISOFT_API_URL", "")
+CHINGUISOFT_CAMPAIGN_KEY = os.environ.get("CHINGUISOFT_CAMPAIGN_KEY", "")
+CHINGUISOFT_CAMPAIGN_TOKEN = os.environ.get("CHINGUISOFT_CAMPAIGN_TOKEN", "")
 
 DELAY_SECONDS = 60
 LOG_FILE = "sent_log.csv"
 
 
 def send_one(phone: str, message: str) -> tuple[bool, str]:
-    """Send a single SMS via chingsoft. Returns (success, raw_response_or_error).
+    """Send a single SMS via chinguisoft. Returns (success, raw_response_or_error).
 
-    TODO: replace the request body/headers/response parsing below with the
-    actual chingsoft API contract once their docs/sample request are available.
+    TODO: the endpoint URL below is unconfirmed - chinguisoft.com blocks
+    automated doc fetches. Verify the exact path and whether campaign_key/
+    Campaign-token are sent as headers or as body fields against their
+    "sample code" panel, then update this function accordingly.
     """
-    if not CHINGSOFT_API_URL or not CHINGSOFT_API_KEY:
-        return False, "CHINGSOFT_API_URL / CHINGSOFT_API_KEY not configured in .env"
+    if not CHINGUISOFT_API_URL or not CHINGUISOFT_CAMPAIGN_KEY or not CHINGUISOFT_CAMPAIGN_TOKEN:
+        return False, "CHINGUISOFT_API_URL / CHINGUISOFT_CAMPAIGN_KEY / CHINGUISOFT_CAMPAIGN_TOKEN not configured in .env"
 
     headers = {
-        "Authorization": f"Bearer {CHINGSOFT_API_KEY}",
+        "campaign_key": CHINGUISOFT_CAMPAIGN_KEY,
+        "Campaign-token": CHINGUISOFT_CAMPAIGN_TOKEN,
         "Content-Type": "application/json",
     }
     payload = {
-        "sender": CHINGSOFT_SENDER_NAME,
-        "to": phone,
+        "phone": phone,
         "message": message,
     }
 
     try:
-        response = requests.post(CHINGSOFT_API_URL, json=payload, headers=headers, timeout=15)
+        response = requests.post(CHINGUISOFT_API_URL, json=payload, headers=headers, timeout=15)
         response.raise_for_status()
         return True, response.text
     except requests.RequestException as exc:

@@ -1,6 +1,6 @@
-# إرسال رسائل SMS للأعضاء (chingsoft)
+# إرسال رسائل SMS للأعضاء (chinguisoft)
 
-سكربت بايثون يرسل رسالة نصية واحدة موحّدة لقائمة من الأعضاء عبر API شركة **chingsoft**، بفاصل زمني (دقيقة افتراضيًا) بين كل رسالة والتي تليها.
+سكربت بايثون يرسل رسالة نصية واحدة موحّدة لقائمة من الأعضاء عبر API شركة **chinguisoft** (chinguisoft.com)، بفاصل زمني (دقيقة افتراضيًا) بين كل رسالة والتي تليها.
 
 ## الإعداد
 
@@ -9,15 +9,17 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-عدّل ملف `.env` وضع فيه بيانات API الخاصة بـ chingsoft:
+عدّل ملف `.env` وضع فيه بيانات حملة chinguisoft (من لوحة التحكم: المفتاح والرمز السري الخاصين بالحملة):
 
 ```
-CHINGSOFT_API_URL=...
-CHINGSOFT_API_KEY=...
-CHINGSOFT_SENDER_NAME=...
+CHINGUISOFT_API_URL=...
+CHINGUISOFT_CAMPAIGN_KEY=...
+CHINGUISOFT_CAMPAIGN_TOKEN=...
 ```
 
-> ملاحظة: شكل الطلب الحالي في `send_sms.py` (دالة `send_one`) هو نموذج مبدئي (placeholder) ويحتاج تعديل ليطابق توثيق chingsoft الفعلي (رابط الـ endpoint، طريقة المصادقة، وشكل الحقول).
+> ملاحظة: شكل الطلب الحالي في `send_sms.py` (دالة `send_one`) نموذج مبدئي (placeholder) بانتظار تأكيد رابط الـ endpoint الدقيق من توثيق/نموذج الكود في لوحة chinguisoft، لأن الموقع يمنع الجلب الآلي للتوثيق. الحقول `campaign_key` و`Campaign-token` مأخوذة من تسميات لوحة التحكم نفسها.
+>
+> ⚠️ رصيد حملة "Awn-wasand" الحالي: **0 رسائل متوفرة** — تأكد من شحن الرصيد قبل التجربة الفعلية.
 
 ## البيانات
 
