@@ -5,6 +5,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -46,3 +49,21 @@ jobs:
         with:
           name: awnwasand-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      # Also publish to a dedicated branch (instead of only the run artifact)
+      # so the APK can be fetched with a plain `git fetch`, without going
+      # through GitHub's artifact/blob storage endpoints.
+      - name: Publish APK to apk-latest branch
+        if: github.event_name != 'pull_request'
+        run: |
+          rm -rf /tmp/apk-branch
+          mkdir -p /tmp/apk-branch
+          cp build/app/outputs/flutter-apk/app-release.apk /tmp/apk-branch/awnwasand.apk
+          cd /tmp/apk-branch
+          git init -q -b apk-latest
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add awnwasand.apk
+          git commit -q -m "APK build for ${{ github.sha }}"
+          git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          git push -q --force origin apk-latest
