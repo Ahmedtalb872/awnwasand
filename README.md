@@ -4,7 +4,7 @@
 الأساسي تطبيق جوال (Android/iOS)، مع نسخة ويب تجريبية للمعاينة السريعة في المتصفح.
 
 **تجربة النسخة الحية في المتصفح:** https://ahmedtalb872.github.io/awnwasand/
-(تُبنى وتُنشر تلقائيًا عند كل push عبر GitHub Actions — انظر قسم "النسخة الويب" أدناه)
+(بعد تفعيل خطوة واحدة يدوية لمرة واحدة — انظر قسم "النسخة الويب" أدناه)
 
 ## الإعداد
 
@@ -46,10 +46,14 @@ flutter run
 flutter run -d chrome
 ```
 
-للبناء والنشر يدويًا، شغّل `.github/workflows/deploy-web.yml` من تبويب Actions
-في GitHub (زر "Run workflow")، أو ادفع أي commit — ينشر تلقائيًا على
-`https://ahmedtalb872.github.io/awnwasand/` عبر GitHub Pages. أول مرة فقط، قد
-تحتاج تفعيل Pages يدويًا من Settings > Pages إن لم يُفعَّل تلقائيًا عبر الـworkflow.
+البناء والنشر يتمّان تلقائيًا عند كل push عبر `.github/workflows/deploy-web.yml`
+(أو يدويًا من تبويب Actions بزر "Run workflow")، وينشران على
+`https://ahmedtalb872.github.io/awnwasand/` عبر GitHub Pages.
+
+> **خطوة لمرة واحدة مطلوبة منك أولاً:** GitHub لا يسمح لتوكن الـActions
+> الافتراضي بتفعيل Pages تلقائيًا (يحتاج صلاحية إدارة المستودع). اذهب إلى
+> **Settings > Pages > Build and deployment > Source** واختر **"GitHub
+> Actions"**. بعدها، كل push سينشر تلقائيًا بدون أي تدخل إضافي.
 
 ## التشغيل بدون Supabase مُعدّ
 

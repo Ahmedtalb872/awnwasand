@@ -1,5 +1,13 @@
 name: Deploy Web
 
+# One-time manual step required before the first successful deploy:
+# Settings > Pages > Build and deployment > Source > "GitHub Actions".
+# The default GITHUB_TOKEN cannot create the Pages site itself (creating
+# it via the REST API needs repo-admin rights the token doesn't have,
+# confirmed by a 403 from POST /repos/{owner}/{repo}/pages) - only a repo
+# admin enabling it in Settings can. After that this workflow deploys on
+# every push with no further action.
+
 on:
   push:
   workflow_dispatch:
@@ -45,17 +53,6 @@ jobs:
 
       - name: Build web
         run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
-
-      # Idempotent: creates the repo's GitHub Pages site (source = GitHub
-      # Actions) on the first run; a 409 on later runs (already exists) is
-      # expected and ignored.
-      - name: Ensure GitHub Pages is enabled
-        run: |
-          curl -s -o /dev/null -w "%{http_code}\n" -X POST \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${{ github.repository }}/pages" \
-            -d '{"build_type":"workflow"}' || true
 
       - uses: actions/upload-pages-artifact@v3
         with:
