@@ -1,19 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../repositories/auth_repository.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/primary_button.dart';
 import 'root_shell.dart';
 import 'signup_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
-  void _enterApp(BuildContext context) {
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const RootShell()),
-      (route) => false,
-    );
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _authRepository = AuthRepository();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _loading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _signIn() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('أدخل البريد الإلكتروني وكلمة المرور')),
+      );
+      return;
+    }
+
+    setState(() => _loading = true);
+    try {
+      await _authRepository.signIn(email: email, password: password);
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const RootShell()),
+        (route) => false,
+      );
+    } on AuthException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تعذّر تسجيل الدخول، حاول مرة أخرى')),
+      );
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   @override
@@ -59,18 +102,20 @@ class LoginScreen extends StatelessWidget {
                 style: TextStyle(color: AppColors.textDim, fontSize: 13),
               ),
               const SizedBox(height: 28),
-              const AppTextField(
+              AppTextField(
                 dark: true,
-                hint: 'البريد الإلكتروني أو رقم الهاتف',
+                hint: 'البريد الإلكتروني',
                 icon: Icons.mail_outline,
                 keyboardType: TextInputType.emailAddress,
+                controller: _emailController,
               ),
               const SizedBox(height: 14),
-              const AppTextField(
+              AppTextField(
                 dark: true,
                 hint: 'كلمة المرور',
                 icon: Icons.lock_outline,
                 obscureText: true,
+                controller: _passwordController,
               ),
               const SizedBox(height: 10),
               Align(
@@ -85,8 +130,8 @@ class LoginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               PrimaryButton(
-                label: 'تسجيل الدخول',
-                onPressed: () => _enterApp(context),
+                label: _loading ? 'جارٍ تسجيل الدخول...' : 'تسجيل الدخول',
+                onPressed: _loading ? null : _signIn,
               ),
               const SizedBox(height: 20),
               Row(
@@ -106,11 +151,11 @@ class LoginScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _SocialCircle(icon: Icons.g_mobiledata, onTap: () {}),
+                  _SocialCircle(icon: Icons.g_mobiledata, onTap: _comingSoon),
                   const SizedBox(width: 16),
-                  _SocialCircle(icon: Icons.apple, onTap: () {}),
+                  _SocialCircle(icon: Icons.apple, onTap: _comingSoon),
                   const SizedBox(width: 16),
-                  _SocialCircle(icon: Icons.phone_outlined, onTap: () {}),
+                  _SocialCircle(icon: Icons.phone_outlined, onTap: _comingSoon),
                 ],
               ),
               const SizedBox(height: 24),
@@ -144,6 +189,12 @@ class LoginScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  void _comingSoon() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('تسجيل الدخول عبر هذه الوسيلة غير متاح بعد')),
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../repositories/auth_repository.dart';
 import '../theme/app_theme.dart';
 import 'login_screen.dart';
 
@@ -17,6 +17,12 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = AuthRepository().currentUser;
+    final fullName = user?.userMetadata?['full_name'] as String?;
+    final displayName = (fullName != null && fullName.isNotEmpty)
+        ? fullName
+        : (user?.email ?? 'زائر');
+
     return Scaffold(
       backgroundColor: AppColors.scaffoldLight,
       appBar: AppBar(
@@ -42,19 +48,20 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    MockData.currentUserName,
-                    style: TextStyle(
+                  Text(
+                    displayName,
+                    style: const TextStyle(
                       color: AppColors.navy,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                   const SizedBox(height: 2),
-                  const Text(
-                    MockData.currentUserEmail,
-                    style: TextStyle(color: AppColors.textGray, fontSize: 12.5),
-                  ),
+                  if (user?.email != null)
+                    Text(
+                      user!.email!,
+                      style: const TextStyle(color: AppColors.textGray, fontSize: 12.5),
+                    ),
                 ],
               ),
             ),
@@ -110,7 +117,9 @@ class ProfileScreen extends StatelessWidget {
                     'تسجيل خروج',
                     style: TextStyle(color: AppColors.fail, fontSize: 13.5),
                   ),
-                  onTap: () {
+                  onTap: () async {
+                    await AuthRepository().signOut();
+                    if (!context.mounted) return;
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(builder: (_) => const LoginScreen()),
                       (route) => false,

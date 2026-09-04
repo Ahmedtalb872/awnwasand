@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../models/project.dart';
+import '../repositories/projects_repository.dart';
 import '../theme/app_theme.dart';
 import '../widgets/project_card.dart';
 import 'donate_screen.dart';
@@ -14,14 +15,18 @@ class ProjectsScreen extends StatefulWidget {
 
 class _ProjectsScreenState extends State<ProjectsScreen> {
   static const _categories = ['الكل', 'دعم الأسر', 'إغاثية', 'تعليمية', 'عمارية'];
+  final _projectsRepository = ProjectsRepository();
+  late Future<List<CharityProject>> _projectsFuture;
   String _selected = 'الكل';
 
   @override
-  Widget build(BuildContext context) {
-    final projects = _selected == 'الكل'
-        ? MockData.projects
-        : MockData.projects.where((p) => p.category == _selected).toList();
+  void initState() {
+    super.initState();
+    _projectsFuture = _projectsRepository.fetchAll();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldLight,
       appBar: AppBar(title: const Text('مشاريع الجمعية')),
@@ -57,18 +62,48 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
             ),
             const SizedBox(height: 14),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
-                children: projects
-                    .map(
-                      (p) => ProjectCard(
-                        project: p,
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const DonateScreen()),
-                        ),
+              child: FutureBuilder<List<CharityProject>>(
+                future: _projectsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return const Center(
+                      child: Text(
+                        'تعذّر تحميل المشاريع',
+                        style: TextStyle(color: AppColors.textGray),
                       ),
-                    )
-                    .toList(),
+                    );
+                  }
+                  final all = snapshot.data ?? [];
+                  final projects = _selected == 'الكل'
+                      ? all
+                      : all.where((p) => p.category == _selected).toList();
+                  if (projects.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'لا توجد مشاريع في هذه الفئة',
+                        style: TextStyle(color: AppColors.textGray),
+                      ),
+                    );
+                  }
+                  return ListView(
+                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
+                    children: projects
+                        .map(
+                          (p) => ProjectCard(
+                            project: p,
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => DonateScreen(project: p),
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  );
+                },
               ),
             ),
           ],

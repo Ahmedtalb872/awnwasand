@@ -12,6 +12,18 @@ class Expense {
     this.notes,
   });
 
+  factory Expense.fromMap(Map<String, dynamic> map) {
+    return Expense(
+      title: map['title'] as String,
+      category: map['category'] as String,
+      amount: map['amount'] as int,
+      date: (map['spent_at'] as String).replaceAll('-', '/'),
+      paymentMethod: map['payment_method'] as String,
+      referenceNumber: map['reference_number'] as String,
+      notes: map['notes'] as String?,
+    );
+  }
+
   final String title;
   final String category;
   final int amount;

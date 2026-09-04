@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
 
+import '../models/project.dart';
+import '../repositories/donations_repository.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_text_field.dart';
 import '../widgets/primary_button.dart';
 
 class DonateScreen extends StatefulWidget {
-  const DonateScreen({super.key});
+  const DonateScreen({super.key, this.project});
+
+  final CharityProject? project;
 
   @override
   State<DonateScreen> createState() => _DonateScreenState();
 }
 
 class _DonateScreenState extends State<DonateScreen> {
-  bool _forProject = true;
+  final _donationsRepository = DonationsRepository();
+  final _customAmountController = TextEditingController();
+  late bool _forProject = widget.project != null;
   int? _amount = 100;
   String _paymentMethod = 'تحويل بنكي';
+  bool _submitting = false;
 
   static const _amounts = [50, 100, 500];
   static const _paymentMethods = [
@@ -21,6 +29,43 @@ class _DonateScreenState extends State<DonateScreen> {
     (Icons.credit_card_outlined, 'بطاقة مصرفية'),
     (Icons.account_balance_wallet_outlined, 'محفظة إلكترونية'),
   ];
+
+  @override
+  void dispose() {
+    _customAmountController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final amount = _amount ?? int.tryParse(_customAmountController.text.trim());
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('يرجى تحديد مبلغ صحيح')));
+      return;
+    }
+
+    setState(() => _submitting = true);
+    try {
+      await _donationsRepository.donate(
+        projectId: _forProject ? widget.project?.id : null,
+        amount: amount,
+        paymentMethod: _paymentMethod,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('شكرًا لك، تم تسجيل تبرعك')));
+      Navigator.of(context).pop();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('تعذّر إتمام التبرع، حاول مرة أخرى')));
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +76,18 @@ class _DonateScreenState extends State<DonateScreen> {
         child: ListView(
           padding: const EdgeInsets.all(18),
           children: [
+            if (widget.project != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Text(
+                  'تتبرع لمشروع: ${widget.project!.title}',
+                  style: const TextStyle(
+                    color: AppColors.navy,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13.5,
+                  ),
+                ),
+              ),
             Container(
               decoration: BoxDecoration(
                 color: AppColors.cardLight,
@@ -44,7 +101,9 @@ class _DonateScreenState extends State<DonateScreen> {
                     child: _SegmentButton(
                       label: 'تبرع لمشروع محدد',
                       selected: _forProject,
-                      onTap: () => setState(() => _forProject = true),
+                      onTap: widget.project == null
+                          ? null
+                          : () => setState(() => _forProject = true),
                     ),
                   ),
                   Expanded(
@@ -89,6 +148,15 @@ class _DonateScreenState extends State<DonateScreen> {
                 ),
               ],
             ),
+            if (_amount == null) ...[
+              const SizedBox(height: 12),
+              AppTextField(
+                hint: 'المبلغ بالريال السعودي',
+                icon: Icons.payments_outlined,
+                keyboardType: TextInputType.number,
+                controller: _customAmountController,
+              ),
+            ],
             const SizedBox(height: 24),
             const Text(
               'طريقة الدفع',
@@ -151,12 +219,8 @@ class _DonateScreenState extends State<DonateScreen> {
             }),
             const SizedBox(height: 12),
             PrimaryButton(
-              label: 'إتمام التبرع',
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('سيتم ربط التبرع بالباك-إند لاحقًا')),
-                );
-              },
+              label: _submitting ? 'جارٍ التسجيل...' : 'إتمام التبرع',
+              onPressed: _submitting ? null : _submit,
             ),
             const SizedBox(height: 10),
             const Text(
@@ -180,7 +244,7 @@ class _SegmentButton extends StatelessWidget {
 
   final String label;
   final bool selected;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {

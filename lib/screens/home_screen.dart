@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
+import '../models/project.dart';
+import '../repositories/auth_repository.dart';
+import '../repositories/projects_repository.dart';
 import '../theme/app_theme.dart';
 import '../widgets/project_card.dart';
 import '../widgets/section_header.dart';
@@ -10,8 +12,29 @@ import 'mahajja_screen.dart';
 import 'members_screen.dart';
 import 'root_shell.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final _projectsRepository = ProjectsRepository();
+  late Future<List<CharityProject>> _projectsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _projectsFuture = _projectsRepository.fetchAll();
+  }
+
+  String get _userGreetingName {
+    final user = AuthRepository().currentUser;
+    final fullName = user?.userMetadata?['full_name'] as String?;
+    if (fullName != null && fullName.isNotEmpty) return fullName;
+    return user?.email ?? 'زائر';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,15 +70,15 @@ class HomeScreen extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
+                    children: [
+                      const Text(
                         'مرحبًا بك',
                         style: TextStyle(color: AppColors.textGray, fontSize: 12),
                       ),
                       Text(
-                        MockData.currentUserName,
+                        _userGreetingName,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: AppColors.navy,
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
@@ -181,13 +204,38 @@ class HomeScreen extends StatelessWidget {
               onSeeAll: () => context.goToTab(1),
             ),
             const SizedBox(height: 12),
-            ...MockData.projects.take(1).map(
-              (p) => ProjectCard(
-                project: p,
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const DonateScreen()),
-                ),
-              ),
+            FutureBuilder<List<CharityProject>>(
+              future: _projectsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return const Text(
+                    'تعذّر تحميل المشاريع',
+                    style: TextStyle(color: AppColors.textGray),
+                  );
+                }
+                final projects = snapshot.data ?? [];
+                if (projects.isEmpty) {
+                  return const Text(
+                    'لا توجد مشاريع حالياً',
+                    style: TextStyle(color: AppColors.textGray),
+                  );
+                }
+                final project = projects.first;
+                return ProjectCard(
+                  project: project,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => DonateScreen(project: project),
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 12),
           ],
@@ -244,7 +292,9 @@ class _HomeDrawer extends StatelessWidget {
                 'تسجيل خروج',
                 style: TextStyle(color: AppColors.fail),
               ),
-              onTap: () {
+              onTap: () async {
+                await AuthRepository().signOut();
+                if (!context.mounted) return;
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (_) => const LoginScreen()),
                   (route) => false,

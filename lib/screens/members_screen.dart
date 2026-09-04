@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../data/mock_data.dart';
 import '../models/member.dart';
+import '../repositories/members_repository.dart';
 import '../theme/app_theme.dart';
 import '../widgets/primary_button.dart';
 
@@ -13,12 +13,20 @@ class MembersScreen extends StatefulWidget {
 }
 
 class _MembersScreenState extends State<MembersScreen> {
+  final _membersRepository = MembersRepository();
+  late Future<List<AssociationMember>> _membersFuture;
+  late Future<List<AssociationMember>> _affiliatesFuture;
   bool _showAffiliates = false;
 
   @override
-  Widget build(BuildContext context) {
-    final list = _showAffiliates ? MockData.affiliates : MockData.members;
+  void initState() {
+    super.initState();
+    _membersFuture = _membersRepository.fetchMembers();
+    _affiliatesFuture = _membersRepository.fetchAffiliates();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldLight,
       appBar: AppBar(title: const Text('الأعضاء والمنتسبين')),
@@ -56,11 +64,36 @@ class _MembersScreenState extends State<MembersScreen> {
             ),
             const SizedBox(height: 14),
             Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.fromLTRB(18, 0, 18, 12),
-                itemCount: list.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 10),
-                itemBuilder: (context, i) => _MemberTile(member: list[i]),
+              child: FutureBuilder<List<AssociationMember>>(
+                future: _showAffiliates ? _affiliatesFuture : _membersFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return const Center(
+                      child: Text(
+                        'تعذّر تحميل القائمة',
+                        style: TextStyle(color: AppColors.textGray),
+                      ),
+                    );
+                  }
+                  final list = snapshot.data ?? [];
+                  if (list.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'لا يوجد أحد بعد',
+                        style: TextStyle(color: AppColors.textGray),
+                      ),
+                    );
+                  }
+                  return ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 12),
+                    itemCount: list.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
+                    itemBuilder: (context, i) => _MemberTile(member: list[i]),
+                  );
+                },
               ),
             ),
             Padding(
