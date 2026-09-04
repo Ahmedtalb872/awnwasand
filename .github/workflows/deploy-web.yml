@@ -1,0 +1,72 @@
+name: Deploy Web
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deployment at a time; let an in-flight run finish rather than
+# cancelling it, so a deploy is never left half-applied.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.2"
+          channel: "stable"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Uses real Supabase credentials from repo secrets when configured
+      # (Settings > Secrets and variables > Actions), otherwise falls back
+      # to the placeholder values so the build still succeeds.
+      - name: Configure environment
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -n "$SUPABASE_URL" ]; then
+            printf 'SUPABASE_URL=%s\nSUPABASE_ANON_KEY=%s\n' "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > .env
+          else
+            cp .env.example .env
+          fi
+
+      - name: Build web
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+
+      # Idempotent: creates the repo's GitHub Pages site (source = GitHub
+      # Actions) on the first run; a 409 on later runs (already exists) is
+      # expected and ignored.
+      - name: Ensure GitHub Pages is enabled
+        run: |
+          curl -s -o /dev/null -w "%{http_code}\n" -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages" \
+            -d '{"build_type":"workflow"}' || true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,6 +1,10 @@
 # عون وسند
 
-تطبيق جوال لجمعية عون وسند الخيرية، مبني بـ **Flutter** وباك-إند **Supabase**.
+تطبيق لجمعية عون وسند الخيرية، مبني بـ **Flutter** وباك-إند **Supabase**. الهدف
+الأساسي تطبيق جوال (Android/iOS)، مع نسخة ويب تجريبية للمعاينة السريعة في المتصفح.
+
+**تجربة النسخة الحية في المتصفح:** https://ahmedtalb872.github.io/awnwasand/
+(تُبنى وتُنشر تلقائيًا عند كل push عبر GitHub Actions — انظر قسم "النسخة الويب" أدناه)
 
 ## الإعداد
 
@@ -33,6 +37,19 @@
 ```bash
 flutter run
 ```
+
+## النسخة الويب
+
+مصدر عرض/معاينة سريع (النسخة الأساسية للتطبيق تبقى الجوال). للتشغيل محليًا:
+
+```bash
+flutter run -d chrome
+```
+
+للبناء والنشر يدويًا، شغّل `.github/workflows/deploy-web.yml` من تبويب Actions
+في GitHub (زر "Run workflow")، أو ادفع أي commit — ينشر تلقائيًا على
+`https://ahmedtalb872.github.io/awnwasand/` عبر GitHub Pages. أول مرة فقط، قد
+تحتاج تفعيل Pages يدويًا من Settings > Pages إن لم يُفعَّل تلقائيًا عبر الـworkflow.
 
 ## التشغيل بدون Supabase مُعدّ
 
