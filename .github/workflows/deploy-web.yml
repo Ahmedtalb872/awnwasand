@@ -1,0 +1,69 @@
+name: Deploy Web
+
+# One-time manual step required before the first successful deploy:
+# Settings > Pages > Build and deployment > Source > "GitHub Actions".
+# The default GITHUB_TOKEN cannot create the Pages site itself (creating
+# it via the REST API needs repo-admin rights the token doesn't have,
+# confirmed by a 403 from POST /repos/{owner}/{repo}/pages) - only a repo
+# admin enabling it in Settings can. After that this workflow deploys on
+# every push with no further action.
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deployment at a time; let an in-flight run finish rather than
+# cancelling it, so a deploy is never left half-applied.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.2"
+          channel: "stable"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Uses real Supabase credentials from repo secrets when configured
+      # (Settings > Secrets and variables > Actions), otherwise falls back
+      # to the placeholder values so the build still succeeds.
+      - name: Configure environment
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -n "$SUPABASE_URL" ]; then
+            printf 'SUPABASE_URL=%s\nSUPABASE_ANON_KEY=%s\n' "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > .env
+          else
+            cp .env.example .env
+          fi
+
+      - name: Build web
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,35 @@
+{
+    "name": "عون وسند",
+    "short_name": "عون وسند",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#221D3F",
+    "theme_color": "#221D3F",
+    "description": "تطبيق جمعية عون وسند الخيرية.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}
