@@ -74,15 +74,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Container(
                   width: 84,
                   height: 84,
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(color: AppColors.accent, width: 2),
                   ),
-                  child: const Icon(
-                    Icons.volunteer_activism_outlined,
-                    color: AppColors.accent,
-                    size: 38,
-                  ),
+                  child: Image.asset('assets/images/logo_mark.png'),
                 ),
               ),
               const SizedBox(height: 16),
@@ -133,7 +130,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 label: _loading ? 'جارٍ تسجيل الدخول...' : 'تسجيل الدخول',
                 onPressed: _loading ? null : _signIn,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
+              Center(
+                child: TextButton(
+                  onPressed: _continueAsGuest,
+                  child: const Text(
+                    'متابعة كزائر',
+                    style: TextStyle(
+                      color: AppColors.textDim,
+                      fontSize: 13,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
               Row(
                 children: const [
                   Expanded(child: Divider(color: AppColors.line)),
@@ -189,6 +200,13 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _continueAsGuest() {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const RootShell()),
+      (route) => false,
     );
   }
 

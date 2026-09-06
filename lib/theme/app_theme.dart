@@ -14,9 +14,10 @@ class AppColors {
   static const text = Color(0xFFF8F3EF);
   static const textDim = Color(0xFFCFC7DE);
 
-  // لون العلامة التجارية المشترك بين اللوحتين.
-  static const accent = Color(0xFFEC998C);
-  static const accentSoft = Color(0xFFF6CDBE);
+  // لون العلامة التجارية المشترك بين اللوحتين (وردي ترابي مطفأ، أخف على العين
+  // من الوردي الفاقع الأصلي، ومطابق للون شعار الجمعية).
+  static const accent = Color(0xFFC9917F);
+  static const accentSoft = Color(0xFFE7CDB0);
 
   static const ok = Color(0xFF3FAE71);
   static const fail = Color(0xFFE0645A);

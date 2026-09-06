@@ -20,15 +20,12 @@ class SplashScreen extends StatelessWidget {
               Container(
                 width: 120,
                 height: 120,
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.accent, width: 2),
                 ),
-                child: const Icon(
-                  Icons.volunteer_activism_outlined,
-                  color: AppColors.accent,
-                  size: 56,
-                ),
+                child: Image.asset('assets/images/logo_mark.png'),
               ),
               const SizedBox(height: 28),
               const Text(
