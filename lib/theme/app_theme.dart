@@ -1,63 +1,40 @@
 import 'package:flutter/material.dart';
 
-/// ألوان هوية جمعية عون وسند الخيرية.
+/// ألوان هوية منصة "المحجة البيضاء" التعليمية (تابعة لجمعية عون وسند الخيرية).
 ///
-/// `background`/`panel` (كحلي داكن) تُستخدم في شاشات الترحيب والدخول،
-/// بينما بقية شاشات التطبيق تعتمد لوحة الألوان الفاتحة (`scaffoldLight` وما يليها).
+/// لوحة كريمية هادئة، مع تيل (أخضر مزرق داكن) وذهبي كألوان علامة تجارية،
+/// مطابقة لشعار المنصة وأخف على العين من الألوان الفاقعة.
 class AppColors {
   AppColors._();
 
-  // اللوحة الداكنة (شاشة البداية / تسجيل الدخول).
-  static const background = Color(0xFF221D3F);
-  static const panel = Color(0xFF2B2550);
-  static const line = Color(0xFF3E3670);
-  static const text = Color(0xFFF8F3EF);
-  static const textDim = Color(0xFFCFC7DE);
+  static const scaffoldLight = Color(0xFFFBF6EC);
+  static const cardLight = Color(0xFFFFFFFF);
+  static const borderLight = Color(0xFFEEE3CC);
 
-  // لون العلامة التجارية المشترك بين اللوحتين (وردي ترابي مطفأ، أخف على العين
-  // من الوردي الفاقع الأصلي، ومطابق للون شعار الجمعية).
-  static const accent = Color(0xFFC9917F);
-  static const accentSoft = Color(0xFFE7CDB0);
+  // لون العلامة التجارية الأساسي (تيل داكن) ولون ثانوي (ذهبي).
+  static const navy = Color(0xFF0F5C48);
+  static const navySoft = Color(0xFF4C8071);
+  static const accent = Color(0xFFB8935A);
+  static const accentSoft = Color(0xFFEFDFC0);
+
+  static const textGray = Color(0xFF7C8580);
 
   static const ok = Color(0xFF3FAE71);
-  static const fail = Color(0xFFE0645A);
-
-  // اللوحة الفاتحة (بقية شاشات التطبيق).
-  static const scaffoldLight = Color(0xFFFBF7F5);
-  static const cardLight = Color(0xFFFFFFFF);
-  static const borderLight = Color(0xFFEFE6E2);
-  static const navy = Color(0xFF221D3F);
-  static const navySoft = Color(0xFF4A4470);
-  static const textGray = Color(0xFF8E8AA0);
+  static const fail = Color(0xFFC1443A);
 }
 
 class AppTheme {
   AppTheme._();
-
-  static ThemeData get dark {
-    return ThemeData(
-      useMaterial3: true,
-      scaffoldBackgroundColor: AppColors.background,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.accent,
-        brightness: Brightness.dark,
-        surface: AppColors.panel,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.text,
-        elevation: 0,
-      ),
-    );
-  }
 
   static ThemeData get light {
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: AppColors.scaffoldLight,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.accent,
+        seedColor: AppColors.navy,
         brightness: Brightness.light,
+        primary: AppColors.navy,
+        secondary: AppColors.accent,
         surface: AppColors.cardLight,
       ),
       appBarTheme: const AppBarTheme(
@@ -67,11 +44,12 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.navy,
-        selectedItemColor: AppColors.accent,
-        unselectedItemColor: AppColors.textDim,
+        backgroundColor: AppColors.cardLight,
+        selectedItemColor: AppColors.navy,
+        unselectedItemColor: AppColors.textGray,
         type: BottomNavigationBarType.fixed,
         showUnselectedLabels: true,
+        elevation: 8,
       ),
       dividerColor: AppColors.borderLight,
     );

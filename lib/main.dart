@@ -18,7 +18,7 @@ class AwnWasandApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'عون وسند',
+      title: 'المحجة البيضاء',
       debugShowCheckedModeBanner: false,
       locale: const Locale('ar'),
       theme: AppTheme.light,

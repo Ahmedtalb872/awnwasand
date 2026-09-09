@@ -1,40 +1,35 @@
 import 'package:flutter/material.dart';
 
-import '../models/lesson.dart';
-import '../repositories/lessons_repository.dart';
+import '../models/subject.dart';
+import '../repositories/subjects_repository.dart';
 import '../theme/app_theme.dart';
-import 'lesson_player_screen.dart';
+import 'lessons_screen.dart';
 
-/// دروس مادة علمية واحدة (كالتفسير أو الحديث)، أو كل الدروس عندما لا تُحدَّد
-/// مادة (تُستخدم لتبويب "دروسي").
-class LessonsScreen extends StatefulWidget {
-  const LessonsScreen({super.key, this.category, this.title});
-
-  final String? category;
-  final String? title;
+class SubjectsScreen extends StatefulWidget {
+  const SubjectsScreen({super.key});
 
   @override
-  State<LessonsScreen> createState() => _LessonsScreenState();
+  State<SubjectsScreen> createState() => _SubjectsScreenState();
 }
 
-class _LessonsScreenState extends State<LessonsScreen> {
-  final _lessonsRepository = LessonsRepository();
-  late Future<List<Lesson>> _lessonsFuture;
+class _SubjectsScreenState extends State<SubjectsScreen> {
+  final _subjectsRepository = SubjectsRepository();
+  late Future<List<Subject>> _subjectsFuture;
 
   @override
   void initState() {
     super.initState();
-    _lessonsFuture = _lessonsRepository.fetchAll(category: widget.category);
+    _subjectsFuture = _subjectsRepository.fetchAll();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldLight,
-      appBar: AppBar(title: Text(widget.title ?? widget.category ?? 'دروسي')),
+      appBar: AppBar(title: const Text('المواد العلمية')),
       body: SafeArea(
-        child: FutureBuilder<List<Lesson>>(
-          future: _lessonsFuture,
+        child: FutureBuilder<List<Subject>>(
+          future: _subjectsFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -42,31 +37,34 @@ class _LessonsScreenState extends State<LessonsScreen> {
             if (snapshot.hasError) {
               return const Center(
                 child: Text(
-                  'تعذّر تحميل الدروس',
+                  'تعذّر تحميل المواد العلمية',
                   style: TextStyle(color: AppColors.textGray),
                 ),
               );
             }
-            final lessons = snapshot.data ?? [];
-            if (lessons.isEmpty) {
+            final subjects = snapshot.data ?? [];
+            if (subjects.isEmpty) {
               return const Center(
                 child: Text(
-                  'لا توجد دروس في هذه المادة بعد',
+                  'لا توجد مواد علمية بعد',
                   style: TextStyle(color: AppColors.textGray),
                 ),
               );
             }
             return ListView.separated(
               padding: const EdgeInsets.all(18),
-              itemCount: lessons.length,
+              itemCount: subjects.length,
               separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (context, i) {
-                final lesson = lessons[i];
+                final subject = subjects[i];
                 return InkWell(
                   borderRadius: BorderRadius.circular(14),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => LessonPlayerScreen(lesson: lesson),
+                      builder: (_) => LessonsScreen(
+                        category: subject.category,
+                        title: subject.title,
+                      ),
                     ),
                   ),
                   child: Container(
@@ -79,13 +77,13 @@ class _LessonsScreenState extends State<LessonsScreen> {
                     child: Row(
                       children: [
                         Container(
-                          width: 44,
-                          height: 44,
+                          width: 48,
+                          height: 48,
                           decoration: BoxDecoration(
-                            color: AppColors.navy,
+                            color: AppColors.accentSoft,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.play_arrow, color: Colors.white),
+                          child: Icon(subject.icon, color: AppColors.navy),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -93,16 +91,16 @@ class _LessonsScreenState extends State<LessonsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                lesson.title,
+                                subject.title,
                                 style: const TextStyle(
                                   color: AppColors.navy,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                                  fontSize: 14.5,
                                 ),
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                lesson.durationLabel,
+                                '${subject.lessonCount} دورة',
                                 style: const TextStyle(
                                   color: AppColors.textGray,
                                   fontSize: 12,

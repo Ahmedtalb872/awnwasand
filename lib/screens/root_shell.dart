@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'home_screen.dart';
-import 'mahajja_screen.dart';
+import 'lessons_screen.dart';
 import 'profile_screen.dart';
-import 'projects_screen.dart';
-import 'reports_screen.dart';
+import 'subjects_screen.dart';
 
 /// الحاوية الجذرية التي تحمل شريط التنقل السفلي وتبدّل بين الشاشات الرئيسية.
 class RootShell extends StatefulWidget {
@@ -19,9 +18,8 @@ class _RootShellState extends State<RootShell> {
 
   static const _screens = [
     HomeScreen(),
-    ProjectsScreen(),
-    MahajjaScreen(),
-    ReportsScreen(),
+    SubjectsScreen(),
+    LessonsScreen(),
     ProfileScreen(),
   ];
 
@@ -43,23 +41,19 @@ class _RootShellState extends State<RootShell> {
             label: 'الرئيسية',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.folder_outlined),
-            activeIcon: Icon(Icons.folder),
-            label: 'المشاريع',
+            icon: Icon(Icons.library_books_outlined),
+            activeIcon: Icon(Icons.library_books),
+            label: 'المكتبة',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.menu_book_outlined),
             activeIcon: Icon(Icons.menu_book),
-            label: 'المحجة البيضاء',
+            label: 'دروسي',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart_outlined),
-            activeIcon: Icon(Icons.bar_chart),
-            label: 'التقارير',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.more_horiz),
-            label: 'المزيد',
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'حسابي',
           ),
         ],
       ),

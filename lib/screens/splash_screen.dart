@@ -9,7 +9,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.scaffoldLight,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -17,47 +17,37 @@ class SplashScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(flex: 3),
-              Container(
-                width: 120,
-                height: 120,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.accent, width: 2),
-                ),
-                child: Image.asset('assets/images/logo_mark.png'),
+              Image.asset(
+                'assets/images/mahajja_logo.png',
+                height: 150,
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: 18),
               const Text(
-                'جمعية عون وسند الخيرية',
+                'المحجة البيضاء',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: AppColors.text,
-                  fontSize: 20,
+                  color: AppColors.navy,
+                  fontSize: 26,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 4),
               const Text(
-                'عوّن وسند... نصنع الفرق',
-                style: TextStyle(color: AppColors.accent, fontSize: 14),
+                'للعلم الشرعي',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.accent, fontSize: 15),
+              ),
+              const SizedBox(height: 18),
+              const Text(
+                'تعليم شرعي مجاني ..\nلبناء جيل واعٍ نافع لأمّته',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.textGray,
+                  fontSize: 14,
+                  height: 1.6,
+                ),
               ),
               const Spacer(flex: 2),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(4, (i) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: i == 0 ? 20 : 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: i == 0 ? AppColors.accent : AppColors.line,
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
                 height: 52,
@@ -68,7 +58,7 @@ class SplashScreen extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accent,
+                    backgroundColor: AppColors.navy,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -84,7 +74,31 @@ class SplashScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 22),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 26,
+                    height: 26,
+                    decoration: const BoxDecoration(
+                      color: AppColors.navy,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.volunteer_activism,
+                      color: AppColors.accent,
+                      size: 15,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'بالتعاون مع جمعية عون وسند الخيرية',
+                    style: TextStyle(color: AppColors.textGray, fontSize: 11.5),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),

@@ -98,6 +98,12 @@ class _SignupScreenState extends State<SignupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const Text(
+                'للاستفادة من جميع مزايا التطبيق',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppColors.textGray, fontSize: 12.5),
+              ),
+              const SizedBox(height: 18),
               AppTextField(
                 hint: 'الاسم الكامل',
                 icon: Icons.person_outline,
@@ -105,14 +111,14 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 14),
               AppTextField(
-                hint: 'رقم الهاتف',
+                hint: 'رقم الجوال',
                 icon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
                 controller: _phoneController,
               ),
               const SizedBox(height: 14),
               AppTextField(
-                hint: 'البريد الإلكتروني',
+                hint: 'البريد الإلكتروني (اختياري)',
                 icon: Icons.mail_outline,
                 keyboardType: TextInputType.emailAddress,
                 controller: _emailController,
@@ -136,12 +142,12 @@ class _SignupScreenState extends State<SignupScreen> {
                 children: [
                   Checkbox(
                     value: _agreed,
-                    activeColor: AppColors.accent,
+                    activeColor: AppColors.navy,
                     onChanged: (v) => setState(() => _agreed = v ?? false),
                   ),
                   const Expanded(
                     child: Text(
-                      'أوافق على الشروط والأحكام',
+                      'أوافق على الشروط والأحكام وسياسة الخصوصية',
                       style: TextStyle(color: AppColors.navy, fontSize: 13),
                     ),
                   ),
@@ -149,7 +155,8 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 8),
               PrimaryButton(
-                label: _loading ? 'جارٍ الإنشاء...' : 'إنشاء حساب',
+                label: _loading ? 'جارٍ الإنشاء...' : 'إنشاء الحساب',
+                color: AppColors.navy,
                 onPressed: _loading ? null : _signUp,
               ),
               const SizedBox(height: 20),

@@ -1,11 +1,11 @@
 {
-    "name": "عون وسند",
-    "short_name": "عون وسند",
+    "name": "المحجة البيضاء",
+    "short_name": "المحجة البيضاء",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#221D3F",
-    "theme_color": "#221D3F",
-    "description": "تطبيق جمعية عون وسند الخيرية.",
+    "background_color": "#FBF6EC",
+    "theme_color": "#0F5C48",
+    "description": "منصة تعليم العلوم الشرعية التابعة لجمعية عون وسند الخيرية.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

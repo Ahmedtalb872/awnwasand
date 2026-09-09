@@ -1,30 +1,38 @@
-import 'package:flutter/material.dart';
-
-import '../utils/icon_lookup.dart';
-
-/// درس ضمن برنامج "المحجة البيضاء" التعليمي.
+/// درس مصوَّر ضمن إحدى مواد منصة "المحجة البيضاء" العلمية.
 class Lesson {
   const Lesson({
+    required this.id,
     required this.title,
-    required this.lessonCount,
     required this.category,
-    required this.icon,
+    required this.durationLabel,
+    this.summary = '',
+    this.content = '',
+    this.quranText,
+    this.quranReference,
+    this.hasPdf = false,
   });
 
   factory Lesson.fromMap(Map<String, dynamic> map) {
     return Lesson(
+      id: map['id'] as String,
       title: map['title'] as String,
-      lessonCount: map['lesson_count'] as int? ?? 0,
       category: map['category'] as String,
-      icon: iconFromName(
-        map['icon'] as String?,
-        fallback: Icons.menu_book_outlined,
-      ),
+      durationLabel: map['duration_label'] as String? ?? '--:--',
+      summary: map['summary'] as String? ?? '',
+      content: map['content'] as String? ?? '',
+      quranText: map['quran_text'] as String?,
+      quranReference: map['quran_reference'] as String?,
+      hasPdf: map['pdf_url'] != null,
     );
   }
 
+  final String id;
   final String title;
-  final int lessonCount;
   final String category;
-  final IconData icon;
+  final String durationLabel;
+  final String summary;
+  final String content;
+  final String? quranText;
+  final String? quranReference;
+  final bool hasPdf;
 }

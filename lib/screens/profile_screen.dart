@@ -1,19 +1,35 @@
 import 'package:flutter/material.dart';
 
+import '../models/profile_stats.dart';
 import '../repositories/auth_repository.dart';
+import '../repositories/profile_repository.dart';
 import '../theme/app_theme.dart';
 import 'login_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final _profileRepository = ProfileRepository();
+  late Future<ProfileStats> _statsFuture;
+
   static const _items = [
-    (Icons.badge_outlined, 'بياناتي الشخصية'),
-    (Icons.volunteer_activism_outlined, 'سجل التبرعات'),
-    (Icons.notifications_none, 'الإشعارات'),
-    (Icons.settings_outlined, 'إعدادات التطبيق'),
-    (Icons.help_outline, 'المساعدة والدعم'),
+    (Icons.menu_book_outlined, 'دوراتي'),
+    (Icons.favorite_outline, 'المفضلة'),
+    (Icons.note_outlined, 'الملاحظات'),
+    (Icons.workspace_premium_outlined, 'الشهادات'),
+    (Icons.settings_outlined, 'الإعدادات'),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _statsFuture = _profileRepository.fetchStats();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +42,7 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.scaffoldLight,
       appBar: AppBar(
-        title: const Text('الملف الشخصي'),
+        title: const Text('حسابي'),
         actions: [
           IconButton(icon: const Icon(Icons.settings_outlined), onPressed: () {}),
         ],
@@ -40,12 +56,8 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   const CircleAvatar(
                     radius: 40,
-                    backgroundColor: AppColors.borderLight,
-                    child: Icon(
-                      Icons.person,
-                      color: AppColors.navySoft,
-                      size: 40,
-                    ),
+                    backgroundColor: AppColors.accentSoft,
+                    child: Icon(Icons.person, color: AppColors.navy, size: 40),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -57,15 +69,48 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  if (user?.email != null)
-                    Text(
-                      user!.email!,
-                      style: const TextStyle(color: AppColors.textGray, fontSize: 12.5),
-                    ),
+                  const Text(
+                    'طالب علم',
+                    style: TextStyle(color: AppColors.textGray, fontSize: 12.5),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+            FutureBuilder<ProfileStats>(
+              future: _statsFuture,
+              builder: (context, snapshot) {
+                final stats = snapshot.data ?? const ProfileStats();
+                return Row(
+                  children: [
+                    Expanded(
+                      child: _StatTile(
+                        icon: Icons.emoji_events_outlined,
+                        value: '${stats.completedCourses}',
+                        label: 'دورات مكتملة',
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _StatTile(
+                        icon: Icons.menu_book_outlined,
+                        value: '${stats.followedLessons}',
+                        label: 'درس متابع',
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _StatTile(
+                        icon: Icons.star_outline,
+                        value: '${stats.knowledgePoints}',
+                        label: 'نقطة علم',
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 20),
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
@@ -104,6 +149,38 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AppColors.navy,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: const BoxDecoration(
+                      color: Colors.white24,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.volunteer_activism,
+                      color: AppColors.accent,
+                      size: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      'بالتعاون مع جمعية عون وسند الخيرية.. معًا لخير دائم',
+                      style: TextStyle(color: Colors.white, fontSize: 11.5),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.borderLight),
@@ -130,6 +207,45 @@ class ProfileScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _StatTile extends StatelessWidget {
+  const _StatTile({required this.icon, required this.value, required this.label});
+
+  final IconData icon;
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      decoration: BoxDecoration(
+        color: AppColors.cardLight,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.borderLight),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: AppColors.accent, size: 22),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(
+              color: AppColors.navy,
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: const TextStyle(color: AppColors.textGray, fontSize: 10.5),
+          ),
+        ],
       ),
     );
   }

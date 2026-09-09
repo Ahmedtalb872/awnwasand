@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-/// حقل نصي بمظهر موحّد، يدعم اللوحة الداكنة (تسجيل الدخول) والفاتحة (باقي الشاشات).
+/// حقل نصي بمظهر موحّد لكل شاشات التطبيق.
 class AppTextField extends StatelessWidget {
   const AppTextField({
     super.key,
     required this.hint,
     required this.icon,
     this.obscureText = false,
-    this.dark = false,
     this.keyboardType,
     this.controller,
   });
@@ -17,36 +16,30 @@ class AppTextField extends StatelessWidget {
   final String hint;
   final IconData icon;
   final bool obscureText;
-  final bool dark;
   final TextInputType? keyboardType;
   final TextEditingController? controller;
 
   @override
   Widget build(BuildContext context) {
-    final fillColor = dark ? AppColors.panel : AppColors.cardLight;
-    final textColor = dark ? AppColors.text : AppColors.navy;
-    final hintColor = dark ? AppColors.textDim : AppColors.textGray;
-    final borderColor = dark ? AppColors.line : AppColors.borderLight;
-
     return TextField(
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: TextStyle(color: textColor),
+      style: const TextStyle(color: AppColors.navy),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: TextStyle(color: hintColor, fontSize: 13.5),
-        prefixIcon: Icon(icon, color: hintColor, size: 20),
+        hintStyle: const TextStyle(color: AppColors.textGray, fontSize: 13.5),
+        prefixIcon: Icon(icon, color: AppColors.textGray, size: 20),
         filled: true,
-        fillColor: fillColor,
+        fillColor: AppColors.cardLight,
         contentPadding: const EdgeInsets.symmetric(vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: borderColor),
+          borderSide: const BorderSide(color: AppColors.borderLight),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: borderColor),
+          borderSide: const BorderSide(color: AppColors.borderLight),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
