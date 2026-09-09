@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text;
     if (identifier.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('أدخل رقم الجوال أو البريد الإلكتروني وكلمة المرور')),
+        const SnackBar(content: Text('أدخل البريد الإلكتروني وكلمة المرور')),
       );
       return;
     }
@@ -115,8 +115,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 26),
               AppTextField(
-                hint: 'رقم الجوال أو البريد الإلكتروني',
-                icon: Icons.person_outline,
+                hint: 'البريد الإلكتروني',
+                icon: Icons.mail_outline,
+                keyboardType: TextInputType.emailAddress,
                 controller: _identifierController,
               ),
               const SizedBox(height: 14),
