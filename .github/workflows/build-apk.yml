@@ -1,0 +1,79 @@
+name: Build APK
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.2"
+          channel: "stable"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Uses real Supabase credentials from repo secrets when configured
+      # (Settings > Secrets and variables > Actions), otherwise falls back
+      # to the placeholder values so the build still succeeds.
+      - name: Configure environment
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -n "$SUPABASE_URL" ]; then
+            printf 'SUPABASE_URL=%s\nSUPABASE_ANON_KEY=%s\n' "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > .env
+          else
+            cp .env.example .env
+          fi
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      # A single universal APK bundles all four ABIs and lands well over
+      # 30MB; also build split-per-abi APKs (each one ABI only) so the
+      # arm64-v8a build - what the vast majority of Android phones use -
+      # stays small enough to hand over directly.
+      - name: Build split-per-abi APKs
+        run: flutter build apk --release --split-per-abi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: awnwasand-apk
+          path: build/app/outputs/flutter-apk/*.apk
+
+      # Also publish to a dedicated branch (instead of only the run artifact)
+      # so the APKs can be fetched with a plain `git fetch`, without going
+      # through GitHub's artifact/blob storage endpoints.
+      - name: Publish APKs to apk-latest branch
+        if: github.event_name != 'pull_request'
+        run: |
+          rm -rf /tmp/apk-branch
+          mkdir -p /tmp/apk-branch
+          cp build/app/outputs/flutter-apk/app-release.apk /tmp/apk-branch/awnwasand.apk
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk /tmp/apk-branch/awnwasand-arm64.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk /tmp/apk-branch/awnwasand-armeabi-v7a.apk
+          cp build/app/outputs/flutter-apk/app-x86_64-release.apk /tmp/apk-branch/awnwasand-x86_64.apk
+          cd /tmp/apk-branch
+          git init -q -b apk-latest
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -q -m "APK build for ${{ github.sha }}"
+          git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          git push -q --force origin apk-latest
