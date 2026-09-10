@@ -22,7 +22,7 @@ class SplashScreen extends StatelessWidget {
                 height: 168,
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: AppColors.navy,
+                  color: AppColors.logoBackdrop,
                   borderRadius: BorderRadius.circular(28),
                 ),
                 child: Image.asset('assets/images/mahajja_logo.png'),

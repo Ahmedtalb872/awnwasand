@@ -94,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 96,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.navy,
+                    color: AppColors.logoBackdrop,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Image.asset('assets/images/mahajja_logo.png'),

@@ -17,6 +17,10 @@ class AppColors {
   static const accent = Color(0xFFB8935A);
   static const accentSoft = Color(0xFFEFDFC0);
 
+  // لون خلفية الشعار الأصلي كما هو في تصميم الجمعية (كحلي)، يُستخدم فقط خلف
+  // علامة الشعار نفسها، بمعزل عن لون العلامة التجارية للتطبيق أعلاه.
+  static const logoBackdrop = Color(0xFF221D3F);
+
   static const textGray = Color(0xFF7C8580);
 
   static const ok = Color(0xFF3FAE71);
