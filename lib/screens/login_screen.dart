@@ -221,17 +221,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Center(
-                child: TextButton(
-                  onPressed: _continueAsGuest,
-                  child: const Text(
-                    'متابعة كزائر',
-                    style: TextStyle(
-                      color: AppColors.textGray,
-                      fontSize: 12.5,
-                      decoration: TextDecoration.underline,
-                    ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: _continueAsGuest,
+                icon: const Icon(Icons.person_outline, color: AppColors.accent),
+                label: const Text(
+                  'الدخول كزائر',
+                  style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w600),
+                ),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                  side: const BorderSide(color: AppColors.accent),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(100),
                   ),
                 ),
               ),
