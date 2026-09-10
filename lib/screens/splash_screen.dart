@@ -17,9 +17,15 @@ class SplashScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(flex: 3),
-              Image.asset(
-                'assets/images/mahajja_logo.png',
-                height: 150,
+              Container(
+                width: 168,
+                height: 168,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: AppColors.navy,
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: Image.asset('assets/images/mahajja_logo.png'),
               ),
               const SizedBox(height: 18),
               const Text(

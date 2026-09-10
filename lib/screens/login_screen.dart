@@ -89,7 +89,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 alignment: Alignment.centerRight,
               ),
               Center(
-                child: Image.asset('assets/images/mahajja_logo.png', height: 92),
+                child: Container(
+                  width: 96,
+                  height: 96,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.navy,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Image.asset('assets/images/mahajja_logo.png'),
+                ),
               ),
               const SizedBox(height: 14),
               const Text(
