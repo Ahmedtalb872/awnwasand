@@ -69,7 +69,7 @@ class Academy extends ChangeNotifier {
     }
     final raw = preferences.getString(localKey);
     if (raw == null) {
-      courses = [AcademyCourse(id: const Uuid().v4(), title: 'مدخل إلى القرآن الكريم', description: 'دورة تمهيدية لآداب التلاوة والتدبر. يستطيع المشرف إضافة دروس الفيديو والمرفقات هنا.', teacher: 'فريق عون وسند', published: true)];
+      courses = [AcademyCourse(id: const Uuid().v4(), title: 'مدخل إلى القرآن الكريم', description: 'دورة تمهيدية لآداب التلاوة والتدبر. يستطيع المشرف إضافة دروس الفيديو والمرفقات هنا.', teacher: 'فريق المحجة البيضاء', published: true)];
       return;
     }
     final json = jsonDecode(raw) as Map<String, dynamic>;

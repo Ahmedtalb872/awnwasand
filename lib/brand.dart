@@ -40,9 +40,12 @@ class BrandLogo extends StatelessWidget {
 class BrandHeading extends StatelessWidget {
   const BrandHeading({super.key});
   @override
-  Widget build(BuildContext context) => const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    Text(brandName, style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold)),
-    Text('للعلوم الشرعية', style: TextStyle(fontSize: 11)),
+  Widget build(BuildContext context) => const Row(children: [
+    BrandLogo(width: 48), SizedBox(width: 8),
+    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+      Text(brandName, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+      Text('للعلوم الشرعية', style: TextStyle(fontSize: 11)),
+    ])),
   ]);
 }
 
