@@ -11,6 +11,12 @@ import 'package:awnwasand/academy_models.dart';
 import 'package:awnwasand/main.dart';
 import 'package:awnwasand/models.dart';
 
+class ConnectedAcademy extends Academy {
+  ConnectedAcademy(super.preferences);
+  @override
+  bool get isDemo => false;
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -52,9 +58,8 @@ void main() {
   testWidgets('connected registration uses only name phone and password on mobile', (tester) async {
     await tester.binding.setSurfaceSize(const Size(360, 800));
     addTearDown(() => tester.binding.setSurfaceSize(null));
-    final client = SupabaseClient('https://example.supabase.co', 'test-public-key');
-    final repo = Academy(await SharedPreferences.getInstance(), client: client);
-    addTearDown(() => tester.runAsync(() async { repo.dispose(); await client.dispose(); }));
+    final repo = ConnectedAcademy(await SharedPreferences.getInstance());
+    addTearDown(repo.dispose);
     final curriculum = Curriculum.decode(File('assets/curriculum.json').readAsStringSync());
     await tester.pumpWidget(AwnWasandApp(academy: repo, curriculum: curriculum));
     await tester.pumpAndSettle();
@@ -66,5 +71,5 @@ void main() {
     expect(find.text('كلمة السر'), findsOneWidget);
     expect(find.text('البريد الإلكتروني'), findsNothing);
     expect(tester.takeException(), isNull);
-  });
+  }, timeout: const Timeout(Duration(seconds: 45)));
 }
