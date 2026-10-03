@@ -195,17 +195,18 @@ class _StudentAreaState extends State<StudentArea> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Text('السلام عليكم، ${academy.user!.name.split(' ').first}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
       const SizedBox(height: 6), const Text('كل خطوة في العلم تُضيء الطريق.', style: TextStyle(color: brandMuted, fontSize: 12)), const SizedBox(height: 24),
-      BrandPanel(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Row(children: [const Icon(Icons.menu_book, color: academyGold), const SizedBox(width: 10), Expanded(child: Text(academy.isAdmin ? 'إدارة رحلات التعلّم' : 'تابع تعلّمك', style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)))]),
-        const SizedBox(height: 20), Text(next?.title ?? 'خطوة جديدة نحو العلم', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10), Text(academy.isAdmin ? 'أضف دورة، جهّز موادها، ثم انشرها للطلاب.' : next?.description ?? 'انضم إلى دورة أو تابع مساراتك التعليمية.', maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, height: 1.7)),
-        if (next != null) ...[const SizedBox(height: 18), LinearProgressIndicator(value: progress), const SizedBox(height: 8), Text('${(progress * 100).round()}% مكتمل', style: const TextStyle(color: Colors.white))],
-        const SizedBox(height: 20), FilledButton.icon(style: FilledButton.styleFrom(backgroundColor: academyGold, foregroundColor: academyGreen), onPressed: () { if (next != null && !academy.isAdmin) { openCourse(next); } else { setState(() => selected = academy.isAdmin ? 3 : 1); } }, icon: const Icon(Icons.arrow_forward), label: Text(academy.isAdmin ? 'فتح لوحة الإدارة' : next != null ? 'متابعة الدورة' : 'استكشف الدورات')),
+      BrandPanel(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(children: [const Icon(Icons.auto_stories_outlined, color: brandPink, size: 18), const SizedBox(width: 8), Expanded(child: Text(academy.isAdmin ? 'مساحة الإدارة' : next == null ? 'بداية رحلتك' : 'دورتك الحالية', style: const TextStyle(color: brandPink, fontSize: 11))), const Icon(Icons.auto_awesome_outlined, color: Colors.white38, size: 20)]),
+        const SizedBox(height: 14), Text(next?.title ?? 'خطوة جديدة نحو العلم', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 8),
+        if (next != null) ...[Row(children: [const Expanded(child: Text('تابع تعلّمك', style: TextStyle(color: Colors.white70, fontSize: 11))), Text('${(progress * 100).round()}%', style: const TextStyle(color: brandPink, fontSize: 12))]), const SizedBox(height: 8), LinearProgressIndicator(value: progress, minHeight: 4)]
+        else Text(academy.isAdmin ? 'جهّز المحتوى، ثم انشره للطلاب.' : 'اختر دورة، وابدأ رحلة تعلّم على مهل.', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        const SizedBox(height: 18), FilledButton.icon(style: FilledButton.styleFrom(backgroundColor: brandPink, foregroundColor: brandPurple, minimumSize: const Size(0, 44)), onPressed: () { if (next != null && !academy.isAdmin) { openCourse(next); } else { setState(() => selected = academy.isAdmin ? 3 : 1); } }, icon: const Icon(Icons.arrow_back, size: 16), label: Text(academy.isAdmin ? 'فتح لوحة الإدارة' : next != null ? 'متابعة الدورة' : 'استكشف الدورات')),
       ])),
-      SectionHeading('مساراتك الأساسية', action: 'تعلّم الآن', onTap: learning == null ? null : () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => widget.learningBuilder(learning!)))),
-      Card(child: ListTile(leading: const Icon(Icons.menu_book_outlined), title: const Text('القرآن والسنة والعبادات والأخلاق'), subtitle: Text('${learning?.completedCount ?? 0} من 12 درسًا مكتملًا على هذا الجهاز'), trailing: const Icon(Icons.chevron_left), onTap: learning == null ? null : () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => widget.learningBuilder(learning!))))),
       SectionHeading('الدورات المتاحة', action: 'عرض الكل', onTap: () => setState(() => selected = 1)), ...academy.visibleCourses.take(3).map(courseCard),
       if (academy.visibleCourses.isEmpty) const EmptyState(icon: Icons.auto_stories_outlined, title: 'رحلة جديدة تبدأ قريبًا', description: 'ستجد الدورات هنا بمجرد نشرها من المشرف.'),
+      SectionHeading('مساراتك الأساسية', action: 'تعلّم الآن', onTap: learning == null ? null : () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => widget.learningBuilder(learning!)))),
+      Card(child: ListTile(leading: const Icon(Icons.menu_book_outlined), title: const Text('القرآن والسنة والعبادات والأخلاق'), subtitle: Text('${learning?.completedCount ?? 0} من 12 درسًا مكتملًا على هذا الجهاز'), trailing: const Icon(Icons.chevron_left), onTap: learning == null ? null : () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => widget.learningBuilder(learning!))))),
     ]);
   }
   Widget coursesPage() {
