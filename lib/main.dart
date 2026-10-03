@@ -14,7 +14,9 @@ void main() {
 }
 
 class AwnWasandApp extends StatelessWidget {
-  const AwnWasandApp({super.key});
+  const AwnWasandApp({super.key, this.curriculum, this.store});
+  final Curriculum? curriculum;
+  final LearningStore? store;
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'عون وسند',
@@ -29,7 +31,9 @@ class AwnWasandApp extends StatelessWidget {
       appBarTheme: const AppBarTheme(backgroundColor: Color(0xfff7f8f3), foregroundColor: forest),
       inputDecorationTheme: const InputDecorationTheme(border: OutlineInputBorder()),
     ),
-    home: const Bootstrap(),
+    home: curriculum != null && store != null
+      ? LearningHome(curriculum: curriculum!, store: store!)
+      : const Bootstrap(),
   );
 }
 
