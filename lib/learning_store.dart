@@ -17,8 +17,10 @@ class LessonProgress {
 }
 
 class LearningStore extends ChangeNotifier {
-  LearningStore(this.preferences);
+  LearningStore(this.preferences, {this.profileId = 'default'});
   static const storageKey = 'awnwasand.learning.v1';
+  final String profileId;
+  String get key => profileId == 'default' ? storageKey : '$storageKey.$profileId';
   final SharedPreferences preferences;
   String name = 'متعلم';
   int dailyGoal = 1;
@@ -27,9 +29,9 @@ class LearningStore extends ChangeNotifier {
   final Map<String, Set<String>> activity = {};
   bool recoveredCorruptData = false;
 
-  static Future<LearningStore> load() async {
-    final store = LearningStore(await SharedPreferences.getInstance());
-    final raw = store.preferences.getString(storageKey);
+  static Future<LearningStore> load({String profileId = 'default'}) async {
+    final store = LearningStore(await SharedPreferences.getInstance(), profileId: profileId);
+    final raw = store.preferences.getString(store.key);
     if (raw != null) {
       try {
         final json = jsonDecode(raw) as Map<String, dynamic>;
@@ -44,7 +46,7 @@ class LearningStore extends ChangeNotifier {
         });
       } catch (_) {
         // Keep a copy for recovery rather than overwriting unreadable data silently.
-        await store.preferences.setString('$storageKey.backup', raw);
+        await store.preferences.setString('${store.key}.backup', raw);
         store.name = 'متعلم';
         store.dailyGoal = 1;
         store.progress.clear();
@@ -63,7 +65,7 @@ class LearningStore extends ChangeNotifier {
   int get attempts => progress.values.fold(0, (total, p) => total + p.attempts);
 
   Future<void> save() async {
-    final ok = await preferences.setString(storageKey, jsonEncode({
+    final ok = await preferences.setString(key, jsonEncode({
       'name': name, 'goal': dailyGoal,
       'progress': progress.map((key, value) => MapEntry(key, value.toJson())),
       'bookmarks': bookmarks.toList(),
@@ -104,7 +106,7 @@ class LearningStore extends ChangeNotifier {
   }
 
   Future<void> reset() async {
-    final ok = await preferences.remove(storageKey);
+    final ok = await preferences.remove(key);
     if (!ok) throw StateError('تعذر حذف البيانات');
     name = 'متعلم';
     dailyGoal = 1;

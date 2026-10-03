@@ -4,6 +4,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'learning_store.dart';
 import 'models.dart';
+import 'academy.dart';
+import 'academy_ui.dart';
 
 const forest = Color(0xff123e35);
 const gold = Color(0xffd5b477);
@@ -14,9 +16,10 @@ void main() {
 }
 
 class AwnWasandApp extends StatelessWidget {
-  const AwnWasandApp({super.key, this.curriculum, this.store});
+  const AwnWasandApp({super.key, this.curriculum, this.store, this.academy});
   final Curriculum? curriculum;
   final LearningStore? store;
+  final Academy? academy;
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'عون وسند',
@@ -31,7 +34,9 @@ class AwnWasandApp extends StatelessWidget {
       appBarTheme: const AppBarTheme(backgroundColor: Color(0xfff7f8f3), foregroundColor: forest),
       inputDecorationTheme: const InputDecorationTheme(border: OutlineInputBorder()),
     ),
-    home: curriculum != null && store != null
+    home: curriculum != null && academy != null
+      ? AcademyPortal(academy: academy!, learningBuilder: (store) => LearningHome(curriculum: curriculum!, store: store))
+      : curriculum != null && store != null
       ? LearningHome(curriculum: curriculum!, store: store!)
       : const Bootstrap(),
   );
@@ -45,7 +50,7 @@ class Bootstrap extends StatefulWidget {
 
 class _BootstrapState extends State<Bootstrap> {
   Curriculum? curriculum;
-  LearningStore? store;
+  Academy? academy;
   Object? error;
 
   @override
@@ -54,17 +59,17 @@ class _BootstrapState extends State<Bootstrap> {
     setState(() => error = null);
     try {
       final data = Curriculum.decode(await rootBundle.loadString('assets/curriculum.json'));
-      final saved = await LearningStore.load();
+      final saved = await Academy.load();
       if (!mounted) { saved.dispose(); return; }
-      setState(() { curriculum = data; store = saved; });
+      setState(() { curriculum = data; academy = saved; });
     } catch (e) { if (mounted) setState(() => error = e); }
   }
 
   @override
-  void dispose() { store?.dispose(); super.dispose(); }
+  void dispose() { academy?.dispose(); super.dispose(); }
   @override
   Widget build(BuildContext context) {
-    if (store != null && curriculum != null) return LearningHome(curriculum: curriculum!, store: store!);
+    if (academy != null && curriculum != null) return AcademyPortal(academy: academy!, learningBuilder: (store) => LearningHome(curriculum: curriculum!, store: store));
     return Scaffold(body: Center(child: error == null
       ? const CircularProgressIndicator()
       : Column(mainAxisSize: MainAxisSize.min, children: [
