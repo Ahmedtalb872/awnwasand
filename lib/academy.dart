@@ -5,16 +5,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
 import 'academy_models.dart';
 import 'media_store.dart';
 
 class Academy extends ChangeNotifier {
-  Academy(this.preferences, {this.client, MediaStore? media}) : media = media ?? MediaStore();
+  Academy(this.preferences, {this.client, this.backendUrl, this.publishableKey, this.readinessClient, MediaStore? media}) : media = media ?? MediaStore();
   static const localKey = 'awnwasand.academy.v1';
   static bool _supabaseInitialized = false;
   static const maxUploadSize = 50 * 1024 * 1024;
   final SharedPreferences preferences;
   final SupabaseClient? client;
+  final String? backendUrl, publishableKey;
+  final http.Client? readinessClient;
   final MediaStore media;
   StreamSubscription<AuthState>? _auth;
   bool get isDemo => client == null;
@@ -42,7 +45,7 @@ class Academy extends ChangeNotifier {
       }
       client = Supabase.instance.client;
     }
-    final academy = Academy(await SharedPreferences.getInstance(), client: client);
+    final academy = Academy(await SharedPreferences.getInstance(), client: client, backendUrl: url, publishableKey: key);
     await academy.restore();
     if (client != null) {
       academy._auth = client.auth.onAuthStateChange.listen((event) {
@@ -85,17 +88,24 @@ class Academy extends ChangeNotifier {
   Future<void> checkSchema() async {
     if (isDemo) return;
     setupIssue = null;
-    for (final entry in {'profiles':'id', 'courses':'id', 'course_materials':'id', 'enrollments':'course_id'}.entries) {
-      try {
-        await client!.from(entry.key).select(entry.value).limit(1);
-      } on PostgrestException catch (error) {
-        if (error.code == '42501') continue; // Private tables deny anonymous reads.
-        setupIssue = 'المنصة متصلة، لكن تجهيز الحسابات والدورات لم يكتمل بعد. يُرجى المحاولة لاحقًا.';
-        break;
-      } catch (_) {
-        setupIssue = 'تعذر الاتصال بخدمة الحسابات. تحقق من اتصالك ثم حاول مجددًا.';
-        break;
+    final transport = readinessClient ?? http.Client();
+    try {
+      for (final entry in {'profiles':'id', 'courses':'id', 'course_materials':'id', 'enrollments':'course_id'}.entries) {
+        final uri = Uri.parse('$backendUrl/rest/v1/${entry.key}').replace(queryParameters: {'select': entry.value, 'limit': '1'});
+        // Check schema anonymously without initiating auth refresh on an expected 401.
+        final response = await transport.get(uri, headers: {'apikey': publishableKey!}).timeout(const Duration(seconds: 15));
+        final payload = jsonDecode(response.body);
+        if (payload is Map && payload['code'] == '42501') continue;
+        final exposed = (entry.key == 'profiles' || entry.key == 'enrollments') && payload is List && payload.isNotEmpty;
+        if (response.statusCode != 200 || exposed) {
+          setupIssue = 'المنصة متصلة، لكن تجهيز الحسابات والدورات لم يكتمل بعد. يُرجى المحاولة لاحقًا.';
+          break;
+        }
       }
+    } catch (_) {
+      setupIssue = 'تعذر الاتصال بخدمة الحسابات. تحقق من اتصالك ثم حاول مجددًا.';
+    } finally {
+      if (readinessClient == null) transport.close();
     }
     notifyListeners();
   }
