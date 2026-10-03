@@ -25,8 +25,10 @@ def fetch(path):
 
 
 try:
-    status, _ = fetch('/auth/v1/settings')
-    results.append({'component': 'authentication', 'status': status, 'ready': status == 200})
+    status, settings = fetch('/auth/v1/settings')
+    results.append({'component': 'authentication', 'status': status, 'ready': status == 200,
+                    'phone_enabled': settings.get('external', {}).get('phone'),
+                    'sms_autoconfirm': settings.get('sms_autoconfirm')})
     for table, column in [('profiles', 'id'), ('courses', 'id'), ('course_materials', 'id'), ('enrollments', 'course_id')]:
         status, payload = fetch(f'/rest/v1/{table}?select={column}&limit=1')
         code = payload.get('code') if isinstance(payload, dict) else None

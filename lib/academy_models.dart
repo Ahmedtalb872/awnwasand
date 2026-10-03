@@ -1,13 +1,13 @@
 class StudentProfile {
-  const StudentProfile({required this.id, required this.name, this.email = '', this.level = 'مبتدئ', this.bio = '', this.role = 'student'});
-  final String id, name, email, level, bio, role;
+  const StudentProfile({required this.id, required this.name, this.email = '', this.phone = '', this.level = 'مبتدئ', this.bio = '', this.role = 'student'});
+  final String id, name, email, phone, level, bio, role;
   bool get isAdmin => role == 'admin';
   factory StudentProfile.fromJson(Map<String, dynamic> json) => StudentProfile(
     id: json['id'] as String, name: json['name'] as String,
-    email: json['email'] as String? ?? '', level: json['level'] as String? ?? 'مبتدئ',
+    email: json['email'] as String? ?? '', phone: json['phone'] as String? ?? '', level: json['level'] as String? ?? 'مبتدئ',
     bio: json['bio'] as String? ?? '', role: json['role'] as String? ?? 'student',
   );
-  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'email': email, 'level': level, 'bio': bio, 'role': role};
+  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'email': email, 'phone': phone, 'level': level, 'bio': bio, 'role': role};
 }
 
 class CourseMaterial {

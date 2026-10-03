@@ -127,7 +127,7 @@ class Academy extends ChangeNotifier {
     final id = client!.auth.currentUser?.id;
     if (id == null) { user = null; notifyListeners(); return; }
     final profile = await client!.from('profiles').select().eq('id', id).single();
-    user = StudentProfile.fromJson(profile);
+    user = StudentProfile.fromJson({...profile, 'phone': client!.auth.currentUser?.phone ?? ''});
     courses = (await client!.from('courses').select('*,course_materials(*)').order('created_at', ascending: false)).map(AcademyCourse.fromJson).toList();
     enrollments = (await client!.from('enrollments').select()).map(Enrollment.fromJson).toList();
     students = isAdmin
@@ -136,7 +136,22 @@ class Academy extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> signUp(String name, String email, String password) async {
+  static String normalizePhone(String input) {
+    const arabic = '٠١٢٣٤٥٦٧٨٩';
+    const persian = '۰۱۲۳۴۵۶۷۸۹';
+    var value = input.trim();
+    for (var digit = 0; digit < 10; digit++) {
+      value = value.replaceAll(arabic[digit], '$digit').replaceAll(persian[digit], '$digit');
+    }
+    value = value.replaceAll(RegExp(r'[\s()\-]'), '');
+    if (value.startsWith('00')) value = '+${value.substring(2)}';
+    if (!RegExp(r'^\+[1-9][0-9]{7,14}$').hasMatch(value)) {
+      throw ArgumentError('أدخل رقم الهاتف مع رمز البلد، مثل +212612345678');
+    }
+    return value;
+  }
+
+  Future<bool> signUp(String name, String phone, String password) async {
     if (setupIssue != null) throw StateError(setupIssue!);
     if (name.trim().length < 2 || name.trim().length > 60) throw ArgumentError('أدخل اسمًا من حرفين إلى 60 حرفًا');
     if (isDemo) {
@@ -144,15 +159,15 @@ class Academy extends ChangeNotifier {
       students.add(profile); user = profile; await persist(); return true;
     }
     if (password.length < 8) throw ArgumentError('كلمة المرور لا تقل عن 8 أحرف');
-    final response = await client!.auth.signUp(email: email.trim(), password: password, data: {'name': name.trim()});
+    final response = await client!.auth.signUp(phone: normalizePhone(phone), password: password, data: {'name': name.trim()});
     if (response.session == null) return false;
     await refresh(); return true;
   }
 
-  Future<void> signIn(String email, String password) async {
+  Future<void> signIn(String phone, String password) async {
     if (setupIssue != null) throw StateError(setupIssue!);
     if (isDemo) throw StateError('استخدم اختيار الملف التجريبي');
-    await client!.auth.signInWithPassword(email: email.trim(), password: password);
+    await client!.auth.signInWithPassword(phone: normalizePhone(phone), password: password);
     await refresh();
   }
 
@@ -174,7 +189,7 @@ class Academy extends ChangeNotifier {
       await client!.from('profiles').update({'name': name.trim(), 'level': level, 'bio': bio.trim()}).eq('id', user!.id);
       await refresh(); return;
     }
-    user = StudentProfile(id: user!.id, name: name.trim(), email: user!.email, level: level, bio: bio.trim(), role: user!.role);
+    user = StudentProfile(id: user!.id, name: name.trim(), email: user!.email, phone: user!.phone, level: level, bio: bio.trim(), role: user!.role);
     students = students.map((s) => s.id == user!.id ? user! : s).toList(); await persist();
   }
 

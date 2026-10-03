@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:video_player/video_player.dart';
 import 'academy.dart';
 import 'academy_models.dart';
@@ -13,6 +14,12 @@ const academyGreen = brandPurple;
 const academyGold = brandPink;
 void showMessage(BuildContext context, String text) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
 String friendlyError(Object error) {
+  if (error is AuthException) {
+    if (error.code == 'phone_provider_disabled' || error.message.toLowerCase().contains('phone provider')) return 'التسجيل برقم الهاتف غير مفعّل بعد. يجب تفعيل Phone في إعدادات Supabase.';
+    if (error.code == 'phone_not_confirmed') return 'تأكيد الهاتف مفعّل على الخادم. تواصل مع الإدارة لتجهيز الدخول برقم الهاتف وكلمة السر.';
+    if (error.code == 'invalid_credentials') return 'رقم الهاتف أو كلمة السر غير صحيحة.';
+    return 'تعذّر تسجيل الدخول. تحقق من البيانات وإعدادات الحساب ثم حاول مجددًا.';
+  }
   if (error is ArgumentError) return error.message?.toString() ?? 'تحقق من البيانات';
   if (error is StateError) return error.message;
   return 'تعذر إتمام العملية. تحقق من الاتصال والصلاحيات ثم حاول مجددًا.';
@@ -36,19 +43,19 @@ class WelcomeScreen extends StatefulWidget {
 }
 class _WelcomeScreenState extends State<WelcomeScreen> {
   final form = GlobalKey<FormState>();
-  final name = TextEditingController(), email = TextEditingController(), password = TextEditingController();
+  final name = TextEditingController(), phone = TextEditingController(), password = TextEditingController();
   bool register = false, busy = false;
   String? error;
   @override
-  void dispose() { name.dispose(); email.dispose(); password.dispose(); super.dispose(); }
+  void dispose() { name.dispose(); phone.dispose(); password.dispose(); super.dispose(); }
   Future<void> submit() async {
     if (!form.currentState!.validate()) return;
     setState(() { busy = true; error = null; });
     try {
       if (widget.academy.isDemo || register) {
-        final active = await widget.academy.signUp(name.text, email.text, password.text);
-        if (!active && mounted) setState(() => error = 'أُنشئ حسابك. تحقق من رسالة التأكيد في بريدك ثم سجّل الدخول.');
-      } else { await widget.academy.signIn(email.text, password.text); }
+        final active = await widget.academy.signUp(name.text, phone.text, password.text);
+        if (!active && mounted) setState(() => error = 'أُنشئ الحساب، لكن تأكيد الهاتف مفعّل على الخادم. تواصل مع الإدارة لتجهيز الدخول برقم الهاتف وكلمة السر.');
+      } else { await widget.academy.signIn(phone.text, password.text); }
     } catch (e) { if (mounted) setState(() => error = friendlyError(e)); }
     finally { if (mounted) setState(() => busy = false); }
   }
@@ -89,8 +96,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       const SizedBox(height: 20),
       if (widget.academy.isDemo || register) TextFormField(controller: name, maxLength: 60, decoration: const InputDecoration(labelText: 'اسم الطالب'), validator: (value) => (value?.trim().length ?? 0) < 2 ? 'أدخل اسمًا من حرفين على الأقل' : null),
       if (!widget.academy.isDemo) ...[
-        const SizedBox(height: 12), TextFormField(controller: email, keyboardType: TextInputType.emailAddress, textDirection: TextDirection.ltr, autofillHints: const [AutofillHints.email], decoration: const InputDecoration(labelText: 'البريد الإلكتروني'), validator: (value) => RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(value?.trim() ?? '') ? null : 'أدخل بريدًا صحيحًا'),
-        const SizedBox(height: 16), TextFormField(controller: password, obscureText: true, autofillHints: [register ? AutofillHints.newPassword : AutofillHints.password], decoration: const InputDecoration(labelText: 'كلمة المرور'), validator: (value) => (value?.length ?? 0) < 8 ? '8 أحرف على الأقل' : null),
+        const SizedBox(height: 12), TextFormField(controller: phone, keyboardType: TextInputType.phone, textDirection: TextDirection.ltr, autofillHints: const [AutofillHints.telephoneNumber], decoration: const InputDecoration(labelText: 'رقم الهاتف', hintText: '+212612345678', helperText: 'أدخل رمز البلد قبل الرقم، مثل +212'), validator: (value) { try { Academy.normalizePhone(value ?? ''); return null; } on ArgumentError catch (e) { return e.message.toString(); } }),
+        const SizedBox(height: 16), TextFormField(controller: password, obscureText: true, autofillHints: [register ? AutofillHints.newPassword : AutofillHints.password], decoration: const InputDecoration(labelText: 'كلمة السر'), validator: (value) => (value?.length ?? 0) < 8 ? '8 أحرف على الأقل' : null),
       ],
       if (error != null) Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: Text(error!, style: const TextStyle(color: Colors.red))),
       const SizedBox(height: 16), FilledButton(onPressed: busy || widget.academy.setupIssue != null ? null : submit, child: Text(busy ? 'جارٍ المتابعة…' : widget.academy.isDemo ? 'إنشاء ملف وبدء التعلم' : register ? 'إنشاء حساب' : 'تسجيل الدخول')),
@@ -201,7 +208,7 @@ class _StudentAreaState extends State<StudentArea> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       title('ملف الطالب'), Card(child: Padding(padding: const EdgeInsets.all(24), child: Column(children: [
         CircleAvatar(radius: 42, backgroundColor: academyGreen, child: Text(user.name.substring(0, 1), style: const TextStyle(fontSize: 38, color: Colors.white))), const SizedBox(height: 12),
-        Text(user.name, style: Theme.of(context).textTheme.headlineSmall), if (user.email.isNotEmpty) Text(user.email), Text('المستوى: ${user.level}'), if (user.bio.isNotEmpty) Text(user.bio),
+        Text(user.name, style: Theme.of(context).textTheme.headlineSmall), if (user.phone.isNotEmpty) Text(user.phone, textDirection: TextDirection.ltr), Text('المستوى: ${user.level}'), if (user.bio.isNotEmpty) Text(user.bio),
         TextButton.icon(onPressed: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => ProfileEditor(academy: academy))), icon: const Icon(Icons.edit_outlined), label: const Text('تعديل ملفي')),
       ]))),
       const SizedBox(height: 16), Wrap(spacing: 12, runSpacing: 12, children: [Feature(icon: Icons.school_outlined, title: '${entries.length} دورات'), Feature(icon: Icons.task_alt, title: '${entries.fold<int>(0, (n,e) => n + e.completed.length)} مواد أنجزتها')]),
