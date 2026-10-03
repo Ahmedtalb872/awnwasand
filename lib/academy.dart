@@ -22,6 +22,7 @@ class Academy extends ChangeNotifier {
   List<StudentProfile> students = [];
   List<AcademyCourse> courses = [];
   List<Enrollment> enrollments = [];
+  String? setupIssue;
   List<AcademyCourse> get visibleCourses => courses.where((c) => user?.isAdmin == true || c.published).toList();
   bool get isAdmin => user?.isAdmin ?? false;
   Enrollment? enrollment(String courseId, [String? studentId]) {
@@ -36,7 +37,7 @@ class Academy extends ChangeNotifier {
     if (url.isNotEmpty || key.isNotEmpty) {
       if (url.isEmpty || key.isEmpty) throw StateError('إعدادات الخدمة غير مكتملة');
       if (!_supabaseInitialized) {
-        await Supabase.initialize(url: url, anonKey: key);
+        await Supabase.initialize(url: url, publishableKey: key);
         _supabaseInitialized = true;
       }
       client = Supabase.instance.client;
@@ -58,7 +59,11 @@ class Academy extends ChangeNotifier {
   }
 
   Future<void> restore() async {
-    if (!isDemo) { await refresh(); return; }
+    if (!isDemo) {
+      await checkSchema();
+      if (setupIssue == null) await refresh();
+      return;
+    }
     final raw = preferences.getString(localKey);
     if (raw == null) {
       courses = [AcademyCourse(id: const Uuid().v4(), title: 'مدخل إلى القرآن الكريم', description: 'دورة تمهيدية لآداب التلاوة والتدبر. يستطيع المشرف إضافة دروس الفيديو والمرفقات هنا.', teacher: 'فريق عون وسند', published: true)];
@@ -75,6 +80,24 @@ class Academy extends ChangeNotifier {
       final matches = students.where((s) => s.id == active);
       user = matches.isEmpty ? null : matches.first;
     }
+  }
+
+  Future<void> checkSchema() async {
+    if (isDemo) return;
+    setupIssue = null;
+    for (final entry in {'profiles':'id', 'courses':'id', 'course_materials':'id', 'enrollments':'course_id'}.entries) {
+      try {
+        await client!.from(entry.key).select(entry.value).limit(1);
+      } on PostgrestException catch (error) {
+        if (error.code == '42501') continue; // Private tables deny anonymous reads.
+        setupIssue = 'المنصة متصلة، لكن تجهيز الحسابات والدورات لم يكتمل بعد. يُرجى المحاولة لاحقًا.';
+        break;
+      } catch (_) {
+        setupIssue = 'تعذر الاتصال بخدمة الحسابات. تحقق من اتصالك ثم حاول مجددًا.';
+        break;
+      }
+    }
+    notifyListeners();
   }
 
   Future<void> persist() async {
@@ -104,6 +127,7 @@ class Academy extends ChangeNotifier {
   }
 
   Future<bool> signUp(String name, String email, String password) async {
+    if (setupIssue != null) throw StateError(setupIssue!);
     if (name.trim().length < 2 || name.trim().length > 60) throw ArgumentError('أدخل اسمًا من حرفين إلى 60 حرفًا');
     if (isDemo) {
       final profile = StudentProfile(id: const Uuid().v4(), name: name.trim());
@@ -116,6 +140,7 @@ class Academy extends ChangeNotifier {
   }
 
   Future<void> signIn(String email, String password) async {
+    if (setupIssue != null) throw StateError(setupIssue!);
     if (isDemo) throw StateError('استخدم اختيار الملف التجريبي');
     await client!.auth.signInWithPassword(email: email.trim(), password: password);
     await refresh();

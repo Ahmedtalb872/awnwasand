@@ -70,6 +70,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     Wrap(spacing: 16, runSpacing: 12, children: const [Feature(icon: Icons.person_outline, title: 'ملف لكل طالب'), Feature(icon: Icons.play_circle_outline, title: 'دورات وفيديوهات'), Feature(icon: Icons.folder_outlined, title: 'مراجع ومرفقات')]),
     const SizedBox(height: 24),
     if (widget.academy.isDemo) const DemoNotice(),
+    if (widget.academy.setupIssue != null) Card(child: Padding(padding: const EdgeInsets.all(20), child: Column(children: [
+      const Icon(Icons.construction_outlined, color: academyGreen),
+      Text(widget.academy.setupIssue!, textAlign: TextAlign.center),
+      TextButton(onPressed: busy ? null : () async {
+        setState(() => busy = true);
+        await widget.academy.checkSchema();
+        if (mounted) setState(() => busy = false);
+      }, child: const Text('التحقق مجددًا')),
+    ]))),
     Align(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 540), child: Card(child: Padding(padding: const EdgeInsets.all(24), child: Form(key: form, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Text(widget.academy.isDemo ? 'أنشئ ملف طالب للتجربة' : register ? 'أنشئ حساب الطالب' : 'مرحبًا بعودتك', style: Theme.of(context).textTheme.headlineSmall),
       const SizedBox(height: 20),
@@ -79,7 +88,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         const SizedBox(height: 16), TextFormField(controller: password, obscureText: true, autofillHints: [register ? AutofillHints.newPassword : AutofillHints.password], decoration: const InputDecoration(labelText: 'كلمة المرور'), validator: (value) => (value?.length ?? 0) < 8 ? '8 أحرف على الأقل' : null),
       ],
       if (error != null) Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: Text(error!, style: const TextStyle(color: Colors.red))),
-      const SizedBox(height: 16), FilledButton(onPressed: busy ? null : submit, child: Text(busy ? 'جارٍ المتابعة…' : widget.academy.isDemo ? 'إنشاء ملف وبدء التعلم' : register ? 'إنشاء حساب' : 'تسجيل الدخول')),
+      const SizedBox(height: 16), FilledButton(onPressed: busy || widget.academy.setupIssue != null ? null : submit, child: Text(busy ? 'جارٍ المتابعة…' : widget.academy.isDemo ? 'إنشاء ملف وبدء التعلم' : register ? 'إنشاء حساب' : 'تسجيل الدخول')),
       if (!widget.academy.isDemo) TextButton(onPressed: busy ? null : () => setState(() { register = !register; error = null; }), child: Text(register ? 'لدي حساب بالفعل' : 'ليس لدي حساب؛ إنشاء حساب')),
       if (widget.academy.isDemo) ...[
         const SizedBox(height: 16),

@@ -21,7 +21,12 @@ jobs:
       - run: flutter test
       - run: flutter test --platform chrome test/media_web_test.dart
       - run: flutter build web --release
-      - run: flutter build apk --debug --dart-define=SUPABASE_URL="$SUPABASE_URL" --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
+      - run: |
+          backend=(--dart-define-from-file=config/public_backend.json)
+          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_ANON_KEY" ]; then
+            backend+=(--dart-define=SUPABASE_URL="$SUPABASE_URL" --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY")
+          fi
+          flutter build apk --debug "${backend[@]}"
         env:
           SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}

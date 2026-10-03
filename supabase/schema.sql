@@ -29,6 +29,15 @@ $$;
 revoke all on function public.handle_student_signup() from public;
 create trigger on_student_signup after insert on auth.users for each row execute procedure public.handle_student_signup();
 
+-- Include accounts that were registered before the learning schema was installed.
+insert into public.profiles(id,name,email)
+select id,
+  case when char_length(trim(coalesce(raw_user_meta_data->>'name',''))) >= 2
+    then left(trim(raw_user_meta_data->>'name'),60) else 'طالب جديد' end,
+  coalesce(email,'')
+from auth.users
+on conflict(id) do nothing;
+
 create table public.courses (
   id uuid primary key default gen_random_uuid(),
   title text not null check (char_length(trim(title)) between 3 and 120),
