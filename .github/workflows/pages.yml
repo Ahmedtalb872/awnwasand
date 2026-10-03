@@ -1,0 +1,68 @@
+name: Publish Flutter web preview
+
+on:
+  push:
+    branches: [development/islamic-learning]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.3'
+          channel: stable
+          cache: true
+      - name: Use GitHub Actions as the Pages source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          source=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '.build_type')
+          if [ "$source" != "workflow" ]; then
+            gh api --method PUT "repos/$GITHUB_REPOSITORY/pages" -f build_type=workflow
+          fi
+      - uses: actions/configure-pages@v5
+        id: pages
+      - name: Generate Flutter web tooling
+        run: flutter create --platforms=web --org com.awnwasand --project-name awnwasand .
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos
+      - run: flutter test
+      - name: Build for the Pages URL
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: flutter build web --release --base-href "${BASE_PATH%/}/"
+      - name: Verify preview entry point
+        run: test -s build/web/index.html && test -s build/web/flutter_bootstrap.js && test -s build/web/main.dart.js
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
+      - name: Check the published entry point
+        env:
+          PREVIEW_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          curl --fail --location --retry 6 --retry-all-errors --retry-delay 10 "$PREVIEW_URL" -o /tmp/preview.html
+          test -s /tmp/preview.html
+          grep -q 'flutter_bootstrap.js' /tmp/preview.html
+          echo "Preview: $PREVIEW_URL" >> "$GITHUB_STEP_SUMMARY"
