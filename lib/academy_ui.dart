@@ -7,9 +7,10 @@ import 'academy.dart';
 import 'academy_models.dart';
 import 'learning_store.dart';
 import 'media_store.dart';
+import 'brand.dart';
 
-const academyGreen = Color(0xff123e35);
-const academyGold = Color(0xffd5b477);
+const academyGreen = brandPurple;
+const academyGold = brandPink;
 void showMessage(BuildContext context, String text) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
 String friendlyError(Object error) {
   if (error is ArgumentError) return error.message?.toString() ?? 'تحقق من البيانات';
@@ -59,15 +60,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
   @override
   Widget build(BuildContext context) => Scaffold(body: SafeArea(child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1160), child: SingleChildScrollView(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-    const Row(children: [Icon(Icons.auto_awesome, color: academyGreen), SizedBox(width: 12), Text('عون وسند', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26, color: academyGreen))]),
-    const SizedBox(height: 24),
-    Container(padding: const EdgeInsets.all(30), decoration: BoxDecoration(color: academyGreen, borderRadius: BorderRadius.circular(24)), child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text('أهلًا بك في رحلتك إلى العلم', style: TextStyle(color: academyGold)), SizedBox(height: 14),
-      Text('علم نافع.\nورحلة تُشبهك.', style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white, height: 1.5)), SizedBox(height: 14),
-      Text('تعلّم من الدروس والدورات، شاهد الفيديوهات، واحتفظ بمراجعك. ملفك يجمع رحلتك وخطواتك القادمة.', style: TextStyle(color: Colors.white70, height: 1.8)),
+    BrandPanel(child: Column(children: [
+      const BrandLogo(), const SizedBox(height: 24),
+      const Text('ابدأ رحلتك في طلب العلم', textAlign: TextAlign.center, style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white, height: 1.5)),
+      const SizedBox(height: 16),
+      const Text('منصة تعليمية للعلوم الشرعية. تعلّم من الدروس والدورات، وتابع تقدّمك، واحتفظ بمراجعك في مكان واحد.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white70, height: 1.8)),
+      const SizedBox(height: 24),
+      Wrap(alignment: WrapAlignment.center, spacing: 12, runSpacing: 12, children: [
+        FilledButton.icon(style: FilledButton.styleFrom(backgroundColor: brandPink, foregroundColor: brandPurple), onPressed: busy ? null : () => setState(() { register = true; error = null; }), icon: const Icon(Icons.person_add_alt_1), label: const Text('إنشاء حساب')),
+        OutlinedButton.icon(style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white70)), onPressed: busy ? null : () => setState(() { register = false; error = null; }), icon: const Icon(Icons.login), label: const Text('تسجيل الدخول')),
+      ]),
     ])),
     const SizedBox(height: 22),
-    Wrap(spacing: 16, runSpacing: 12, children: const [Feature(icon: Icons.person_outline, title: 'ملف لكل طالب'), Feature(icon: Icons.play_circle_outline, title: 'دورات وفيديوهات'), Feature(icon: Icons.folder_outlined, title: 'مراجع ومرفقات')]),
+    Wrap(alignment: WrapAlignment.center, spacing: 16, runSpacing: 12, children: const [Feature(icon: Icons.person_outline, title: 'ملف لكل طالب'), Feature(icon: Icons.play_circle_outline, title: 'دورات وفيديوهات'), Feature(icon: Icons.folder_outlined, title: 'مراجع ومرفقات')]),
     const SizedBox(height: 24),
     if (widget.academy.isDemo) const DemoNotice(),
     if (widget.academy.setupIssue != null) Card(child: Padding(padding: const EdgeInsets.all(20), child: Column(children: [
@@ -104,7 +109,11 @@ class Feature extends StatelessWidget {
   const Feature({super.key, required this.icon, required this.title});
   final IconData icon; final String title;
   @override
-  Widget build(BuildContext context) => Chip(avatar: Icon(icon, size: 20, color: academyGreen), label: Text(title));
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xffe9e3e6))),
+    child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(icon, size: 22, color: academyGreen), const SizedBox(width: 10), Text(title, style: const TextStyle(fontWeight: FontWeight.w600))]),
+  );
 }
 class DemoNotice extends StatelessWidget {
   const DemoNotice({super.key});
@@ -145,20 +154,40 @@ class _StudentAreaState extends State<StudentArea> {
   }
   void openCourse(AcademyCourse course) => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => CourseScreen(academy: academy, courseId: course.id)));
   void editCourse([AcademyCourse? course]) => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => CourseEditor(academy: academy, course: course)));
-  Widget courseCard(AcademyCourse course) => Card(child: ListTile(contentPadding: const EdgeInsets.all(18), leading: const Icon(Icons.play_lesson_outlined, color: academyGreen), title: Text(course.title, style: const TextStyle(fontWeight: FontWeight.bold)), subtitle: Padding(padding: const EdgeInsets.only(top: 8), child: Text('${course.level} · ${course.teacher}\n${course.description}', maxLines: 3, overflow: TextOverflow.ellipsis)), trailing: Icon(academy.enrollment(course.id) == null ? Icons.chevron_left : Icons.check_circle_outline, color: academyGreen), onTap: () => openCourse(course)));
-  Widget home() => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-    Container(padding: const EdgeInsets.all(26), decoration: BoxDecoration(color: academyGreen, borderRadius: BorderRadius.circular(22)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('خطوة جديدة نحو العلم', style: TextStyle(color: academyGold)), const SizedBox(height: 12),
-      Text('أهلًا ${academy.user!.name}', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)), const SizedBox(height: 12),
-      Text(academy.isAdmin ? 'أضف دورة، جهّز موادها، ثم انشرها للطلاب.' : 'ملفك جاهز. انضم إلى دورة أو تابع مساراتك التعليمية.', style: const TextStyle(color: Colors.white70)),
-      const SizedBox(height: 18), FilledButton.icon(style: FilledButton.styleFrom(backgroundColor: academyGold, foregroundColor: academyGreen), onPressed: () => setState(() => selected = academy.isAdmin ? 3 : 1), icon: Icon(academy.isAdmin ? Icons.dashboard_outlined : Icons.explore_outlined), label: Text(academy.isAdmin ? 'فتح لوحة الإدارة' : 'استكشف الدورات')),
-    ])),
-    title('مساراتك الأساسية'),
-    Card(child: ListTile(leading: const Icon(Icons.menu_book_outlined), title: const Text('القرآن والسنة والعبادات والأخلاق'), subtitle: Text('${learning?.completedCount ?? 0} من 12 درسًا مكتملًا على هذا الجهاز'), trailing: const Icon(Icons.chevron_left), onTap: learning == null ? null : () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => widget.learningBuilder(learning!))))),
-    title(academy.isAdmin ? 'الدورات المنشورة' : 'دوراتي'),
-    ...academy.visibleCourses.where((c) => academy.isAdmin || academy.enrollment(c.id) != null).map(courseCard),
-    if (!academy.isAdmin && !academy.visibleCourses.any((c) => academy.enrollment(c.id) != null)) const Card(child: Padding(padding: EdgeInsets.all(24), child: Text('لم تنضم إلى دورة بعد. اختر دورة من تبويب الدورات.'))),
-  ]);
+  Widget courseCard(AcademyCourse course) {
+    final enrollment = academy.enrollment(course.id);
+    final count = course.materials.length;
+    final completed = enrollment?.completed.length ?? 0;
+    return Card(child: InkWell(borderRadius: BorderRadius.circular(20), onTap: () => openCourse(course), child: Padding(padding: const EdgeInsets.all(18), child: Row(children: [
+      Container(width: 58, height: 66, decoration: BoxDecoration(color: const Color(0xfff5e1e4), borderRadius: BorderRadius.circular(14)), child: const Icon(Icons.menu_book_outlined, color: academyGreen, size: 30)),
+      const SizedBox(width: 16), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(course.title, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold)), const SizedBox(height: 6),
+        Text(course.description, maxLines: 2, overflow: TextOverflow.ellipsis), const SizedBox(height: 8),
+        Text('${course.level} · ${course.teacher}', style: const TextStyle(fontSize: 12)),
+        if (enrollment != null) ...[const SizedBox(height: 12), LinearProgressIndicator(value: count == 0 ? 0 : (completed / count).clamp(0.0, 1.0).toDouble()), const SizedBox(height: 6), Text('$completed / $count مواد مكتملة', style: const TextStyle(fontSize: 12))],
+      ])), const SizedBox(width: 8), const Icon(Icons.chevron_left, color: academyGreen),
+    ]))));
+  }
+  Widget home() {
+    final enrolled = academy.visibleCourses.where((c) => academy.enrollment(c.id) != null).toList();
+    final next = enrolled.where((c) => academy.enrollment(c.id)!.completed.length < c.materials.length).firstOrNull;
+    final progress = next == null || next.materials.isEmpty ? 0.0 : (academy.enrollment(next.id)!.completed.length / next.materials.length).clamp(0.0, 1.0).toDouble();
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      title('السلام عليكم، ${academy.user!.name}'),
+      const Text('بارك الله في طلبك للعلم، ووفّقك لما يحب ويرضى.'), const SizedBox(height: 20),
+      BrandPanel(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(children: [const Icon(Icons.menu_book, color: academyGold), const SizedBox(width: 10), Expanded(child: Text(academy.isAdmin ? 'إدارة رحلات التعلّم' : 'تابع تعلّمك', style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)))]),
+        const SizedBox(height: 20), Text(next?.title ?? 'خطوة جديدة نحو العلم', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10), Text(academy.isAdmin ? 'أضف دورة، جهّز موادها، ثم انشرها للطلاب.' : next?.description ?? 'انضم إلى دورة أو تابع مساراتك التعليمية.', maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white70, height: 1.7)),
+        if (next != null) ...[const SizedBox(height: 18), LinearProgressIndicator(value: progress), const SizedBox(height: 8), Text('${(progress * 100).round()}% مكتمل', style: const TextStyle(color: Colors.white))],
+        const SizedBox(height: 20), FilledButton.icon(style: FilledButton.styleFrom(backgroundColor: academyGold, foregroundColor: academyGreen), onPressed: () { if (next != null && !academy.isAdmin) { openCourse(next); } else { setState(() => selected = academy.isAdmin ? 3 : 1); } }, icon: const Icon(Icons.arrow_forward), label: Text(academy.isAdmin ? 'فتح لوحة الإدارة' : next != null ? 'متابعة الدورة' : 'استكشف الدورات')),
+      ])),
+      title('مساراتك الأساسية'),
+      Card(child: ListTile(leading: const Icon(Icons.menu_book_outlined), title: const Text('القرآن والسنة والعبادات والأخلاق'), subtitle: Text('${learning?.completedCount ?? 0} من 12 درسًا مكتملًا على هذا الجهاز'), trailing: const Icon(Icons.chevron_left), onTap: learning == null ? null : () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => widget.learningBuilder(learning!))))),
+      title('الدورات المتاحة'), ...academy.visibleCourses.map(courseCard),
+      if (academy.visibleCourses.isEmpty) const Card(child: Padding(padding: EdgeInsets.all(24), child: Text('ستظهر الدورات هنا عندما ينشرها المشرف.'))),
+    ]);
+  }
   Widget coursesPage() => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [title('الدورات التعليمية'), TextField(decoration: const InputDecoration(labelText: 'ابحث عن دورة', prefixIcon: Icon(Icons.search)), onChanged: (value) => setState(() => search = value.trim())), const SizedBox(height: 14),
     ...academy.visibleCourses.where((c) => '${c.title} ${c.description} ${c.teacher}'.contains(search)).map(courseCard),
     if (!academy.visibleCourses.any((c) => '${c.title} ${c.description} ${c.teacher}'.contains(search))) const Padding(padding: EdgeInsets.all(30), child: Text('لا توجد دورات مطابقة حاليًا.')),
@@ -166,19 +195,28 @@ class _StudentAreaState extends State<StudentArea> {
   Widget profilePage() {
     final user = academy.user!;
     final entries = academy.enrollments.where((e) => e.studentId == user.id).toList();
+    final total = academy.visibleCourses.where((c) => academy.enrollment(c.id) != null).fold<int>(0, (n, c) => n + c.materials.length);
+    final completed = entries.fold<int>(0, (n, e) => n + e.completed.length);
+    final progress = total == 0 ? 0.0 : (completed / total).clamp(0.0, 1.0).toDouble();
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       title('ملف الطالب'), Card(child: Padding(padding: const EdgeInsets.all(24), child: Column(children: [
-        const CircleAvatar(radius: 36, backgroundColor: academyGreen, child: Icon(Icons.person_outline, size: 40, color: Colors.white)), const SizedBox(height: 12),
+        CircleAvatar(radius: 42, backgroundColor: academyGreen, child: Text(user.name.substring(0, 1), style: const TextStyle(fontSize: 38, color: Colors.white))), const SizedBox(height: 12),
         Text(user.name, style: Theme.of(context).textTheme.headlineSmall), if (user.email.isNotEmpty) Text(user.email), Text('المستوى: ${user.level}'), if (user.bio.isNotEmpty) Text(user.bio),
         TextButton.icon(onPressed: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => ProfileEditor(academy: academy))), icon: const Icon(Icons.edit_outlined), label: const Text('تعديل ملفي')),
       ]))),
       const SizedBox(height: 16), Wrap(spacing: 12, runSpacing: 12, children: [Feature(icon: Icons.school_outlined, title: '${entries.length} دورات'), Feature(icon: Icons.task_alt, title: '${entries.fold<int>(0, (n,e) => n + e.completed.length)} مواد أنجزتها')]),
+      Card(child: Padding(padding: const EdgeInsets.all(22), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const Text('تقدّمك الدراسي', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), const SizedBox(height: 16),
+        LinearProgressIndicator(value: progress, minHeight: 8), const SizedBox(height: 10),
+        Text(total == 0 ? 'ابدأ بدورة لتتابع تقدّمك هنا.' : '${(progress * 100).round()}% · $completed من $total مواد مكتملة'),
+      ]))),
       title('الدورات المسجّل بها'), ...academy.visibleCourses.where((c) => academy.enrollment(c.id) != null).map(courseCard),
       const SizedBox(height: 16), Text(academy.isDemo ? 'هذا الملف تجريبي ومحفوظ على جهازك.' : 'ملفك والدورات المسجّل بها محفوظة في حسابك. نتائج المسارات الأساسية محفوظة على هذا الجهاز.', style: const TextStyle(fontSize: 12)),
     ]);
   }
   Widget adminPage() => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-    title('لوحة التحكم'), Wrap(spacing: 12, runSpacing: 12, children: [Feature(icon: Icons.school_outlined, title: '${academy.courses.length} دورات'), Feature(icon: Icons.people_outline, title: '${academy.students.length} طلاب'), Feature(icon: Icons.folder_outlined, title: '${academy.courses.fold<int>(0, (n,c) => n+c.materials.length)} مواد')]),
+    title('لوحة الإدارة'), const Align(alignment: AlignmentDirectional.centerStart, child: Chip(avatar: Icon(Icons.verified_user_outlined, size: 18), label: Text('المشرف'))),
+    Wrap(spacing: 12, runSpacing: 12, children: [Feature(icon: Icons.school_outlined, title: '${academy.courses.length} دورات'), Feature(icon: Icons.people_outline, title: '${academy.students.length} طلاب'), Feature(icon: Icons.folder_outlined, title: '${academy.courses.fold<int>(0, (n,c) => n+c.materials.length)} مواد')]),
     const SizedBox(height: 18), FilledButton.icon(onPressed: () => editCourse(), icon: const Icon(Icons.add), label: const Text('إضافة دورة جديدة')),
     title('إدارة الدورات'),
     for (final course in academy.courses) Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -195,9 +233,9 @@ class _StudentAreaState extends State<StudentArea> {
   @override
   Widget build(BuildContext context) => ListenableBuilder(listenable: academy, builder: (context, _) {
     if (academy.user == null) return const SizedBox.shrink();
-    return Scaffold(appBar: AppBar(title: const Text('عون وسند'), actions: [IconButton(tooltip: 'تحديث', onPressed: loading ? null : () => action(academy.refresh), icon: const Icon(Icons.refresh)), IconButton(tooltip: 'تسجيل الخروج', onPressed: loading ? null : () => action(academy.signOut), icon: const Icon(Icons.logout))]),
+    return Scaffold(appBar: AppBar(title: const BrandHeading(), actions: [IconButton(tooltip: 'تحديث', onPressed: loading ? null : () => action(academy.refresh), icon: const Icon(Icons.refresh)), IconButton(tooltip: 'تسجيل الخروج', onPressed: loading ? null : () => action(academy.signOut), icon: const Icon(Icons.logout))]),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1100), child: SingleChildScrollView(key: ValueKey(selected), padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [if (academy.isDemo) const DemoNotice(), if (loading) const LinearProgressIndicator(), selected == 0 ? home() : selected == 1 ? coursesPage() : selected == 2 ? profilePage() : adminPage()])))),
-      bottomNavigationBar: NavigationBar(selectedIndex: selected, onDestinationSelected: (value) => setState(() => selected = value), destinations: [const NavigationDestination(icon: Icon(Icons.home_outlined), label: 'الرئيسية'), const NavigationDestination(icon: Icon(Icons.play_lesson_outlined), label: 'الدورات'), const NavigationDestination(icon: Icon(Icons.person_outline), label: 'ملفي'), if (academy.isAdmin) const NavigationDestination(icon: Icon(Icons.dashboard_outlined), label: 'الإدارة')]),
+      bottomNavigationBar: NavigationBar(selectedIndex: selected, onDestinationSelected: (value) => setState(() => selected = value), destinations: [const NavigationDestination(icon: Icon(Icons.home_outlined), label: 'الرئيسية'), const NavigationDestination(icon: Icon(Icons.play_lesson_outlined), label: 'دوراتي'), const NavigationDestination(icon: Icon(Icons.person_outline), label: 'حسابي'), if (academy.isAdmin) const NavigationDestination(icon: Icon(Icons.dashboard_outlined), label: 'الإدارة')]),
     );
   });
 }
@@ -230,7 +268,7 @@ class _CourseEditorState extends State<CourseEditor> {
   @override
   Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: Text(widget.course == null ? 'إضافة دورة' : 'تعديل الدورة')), body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 750), child: Form(key: form, child: ListView(padding: const EdgeInsets.all(24), children: [
     TextFormField(controller: name, maxLength: 120, decoration: const InputDecoration(labelText: 'اسم الدورة'), validator: (value) => (value?.trim().length ?? 0) < 3 ? 'اسم من 3 أحرف على الأقل' : null), const SizedBox(height: 16),
-    TextFormField(controller: description, maxLength: 5000, minLines: 4, maxLines: 8, decoration: const InputDecoration(labelText: 'شرح الدورة وما سيتعلمه الطالب'), validator: (value) => (value?.trim().length ?? 0) < 10 ? 'وصف من 10 أحرف على الأقل' : null), const SizedBox(height: 16),
+    TextFormField(controller: description, maxLength: 5000, minLines: 4, maxLines: 8, decoration: const InputDecoration(labelText: 'وصف الدورة وما سيتعلمه الطالب'), validator: (value) => (value?.trim().length ?? 0) < 10 ? 'وصف من 10 أحرف على الأقل' : null), const SizedBox(height: 16),
     TextFormField(controller: teacher, maxLength: 120, decoration: const InputDecoration(labelText: 'اسم المعلّم')), const SizedBox(height: 16),
     DropdownButtonFormField<String>(value: level, decoration: const InputDecoration(labelText: 'المستوى'), items: ['مبتدئ', 'متوسط', 'متقدم'].map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(), onChanged: (value) => setState(() => level = value ?? 'مبتدئ')),
     SwitchListTile(title: const Text('نشر الدورة للطلاب'), subtitle: const Text('أوقف النشر لتبقى الدورة مسودة داخل الإدارة.'), value: published, onChanged: busy ? null : (value) => setState(() => published = value)),
@@ -322,10 +360,10 @@ class _UploadScreenState extends State<UploadScreen> {
   final title = TextEditingController(); PlatformFile? file; Uint8List? bytes; bool busy = false;
   @override
   void dispose() { title.dispose(); super.dispose(); }
-  Future<void> choose() async {
+  Future<void> choose({bool video = false}) async {
     setState(() => busy = true);
     try {
-      final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['mp4', 'webm', 'mov', 'pdf', 'docx', 'pptx', 'png', 'jpg', 'jpeg'], withData: true);
+      final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: video ? ['mp4', 'webm', 'mov'] : ['pdf', 'docx', 'pptx', 'png', 'jpg', 'jpeg'], withData: true);
       if (result != null) {
         final selected = result.files.single;
         if (selected.bytes == null) throw StateError('تعذر قراءة الملف');
@@ -346,7 +384,10 @@ class _UploadScreenState extends State<UploadScreen> {
   Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('رفع مادة للدورة')), body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 650), child: ListView(padding: const EdgeInsets.all(24), children: [
     if (widget.academy.isDemo) const DemoNotice(),
     TextField(controller: title, maxLength: 160, decoration: const InputDecoration(labelText: 'عنوان الفيديو أو الملف')), const SizedBox(height: 24),
-    OutlinedButton.icon(onPressed: busy ? null : choose, icon: const Icon(Icons.attach_file), label: const Text('اختيار فيديو أو ملف')),
+    Wrap(spacing: 12, runSpacing: 12, children: [
+      OutlinedButton.icon(onPressed: busy ? null : () => choose(video: true), icon: const Icon(Icons.play_circle_outline), label: const Text('رفع فيديو')),
+      OutlinedButton.icon(onPressed: busy ? null : () => choose(), icon: const Icon(Icons.attach_file), label: const Text('رفع ملف')),
+    ]),
     const SizedBox(height: 12), const Text('فيديو: MP4 أو WebM أو MOV. ملفات: PDF، Word، PowerPoint، وصور. الحد الأقصى 50 ميجابايت.'),
     if (file != null) Card(child: ListTile(leading: const Icon(Icons.insert_drive_file_outlined), title: Text(file!.name), subtitle: Text('${(file!.size / 1024 / 1024).toStringAsFixed(1)} ميجابايت'))),
     const SizedBox(height: 24), if (busy) const LinearProgressIndicator(), const SizedBox(height: 12),

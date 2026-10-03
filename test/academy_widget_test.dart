@@ -17,6 +17,21 @@ void main() {
     await tester.pumpAndSettle();
     return repo;
   }
+  testWidgets('approved brand and student area fit a narrow Arabic screen', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(360, 800));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final repo = await start(tester);
+    expect(find.text('ابدأ رحلتك في طلب العلم'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await repo.signUp('طالب جديد', '', '');
+    await tester.pumpAndSettle();
+    expect(find.text('المحجة البيضاء'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('حسابي'));
+    await tester.pumpAndSettle();
+    expect(find.text('تقدّمك الدراسي'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('welcome creates a student profile without admin access', (tester) async {
     final repo = await start(tester);
     expect(find.text('أنشئ ملف طالب للتجربة'), findsOneWidget);
@@ -27,7 +42,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(repo.user!.name, 'أحمد طالب');
     expect(find.text('الإدارة'), findsNothing);
-    await tester.tap(find.text('ملفي'));
+    await tester.tap(find.text('حسابي'));
     await tester.pumpAndSettle();
     expect(find.text('ملف الطالب'), findsOneWidget);
     expect(find.text('أحمد طالب'), findsOneWidget);

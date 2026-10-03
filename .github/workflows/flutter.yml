@@ -16,6 +16,7 @@ jobs:
           cache: true
       - name: Generate platform tooling
         run: flutter create --platforms=android,web --org com.awnwasand --project-name awnwasand .
+      - run: python scripts/brand_platforms.py
       - run: flutter pub get
       - run: flutter analyze --no-fatal-infos
       - run: flutter test

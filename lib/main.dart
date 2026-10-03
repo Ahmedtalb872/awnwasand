@@ -6,9 +6,10 @@ import 'learning_store.dart';
 import 'models.dart';
 import 'academy.dart';
 import 'academy_ui.dart';
+import 'brand.dart';
 
-const forest = Color(0xff123e35);
-const gold = Color(0xffd5b477);
+const forest = brandPurple;
+const gold = brandPink;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,18 +23,12 @@ class AwnWasandApp extends StatelessWidget {
   final Academy? academy;
   @override
   Widget build(BuildContext context) => MaterialApp(
-    title: 'عون وسند',
+    title: brandName,
     debugShowCheckedModeBanner: false,
     locale: const Locale('ar'),
     supportedLocales: const [Locale('ar')],
     localizationsDelegates: GlobalMaterialLocalizations.delegates,
-    theme: ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(seedColor: forest),
-      scaffoldBackgroundColor: const Color(0xfff7f8f3),
-      appBarTheme: const AppBarTheme(backgroundColor: Color(0xfff7f8f3), foregroundColor: forest),
-      inputDecorationTheme: const InputDecorationTheme(border: OutlineInputBorder()),
-    ),
+    theme: academyTheme(),
     home: curriculum != null && academy != null
       ? AcademyPortal(academy: academy!, learningBuilder: (store) => LearningHome(curriculum: curriculum!, store: store))
       : curriculum != null && store != null
@@ -232,7 +227,7 @@ class _LearningHomeState extends State<LearningHome> {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(listenable: store, builder: (context, _) => Scaffold(
-    appBar: AppBar(title: const Text('عون وسند', style: TextStyle(fontWeight: FontWeight.bold)), actions: [IconButton(onPressed: editProfile, tooltip: 'ملفي وهدفي', icon: const Icon(Icons.person_outline))]),
+    appBar: AppBar(title: const Text(brandName, style: TextStyle(fontWeight: FontWeight.bold)), actions: [IconButton(onPressed: editProfile, tooltip: 'ملفي وهدفي', icon: const Icon(Icons.person_outline))]),
     body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1120), child: SingleChildScrollView(key: ValueKey(selected), padding: const EdgeInsets.all(20), child: selected == 0 ? home() : selected == 1 ? Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [heading('مسارات التعلم'), trackCards()]) : selected == 2 ? library() : progressPage()))),
     bottomNavigationBar: NavigationBar(selectedIndex: selected, onDestinationSelected: (value) => setState(() => selected = value), destinations: const [
       NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'الرئيسية'),

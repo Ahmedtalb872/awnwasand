@@ -21,8 +21,8 @@ void main() {
 
   testWidgets('Arabic home opens a lesson and saves a passing quiz', (tester) async {
     await pumpLearning(tester);
-    expect(find.text('عون وسند'), findsOneWidget);
-    expect(Directionality.of(tester.element(find.text('عون وسند'))), TextDirection.rtl);
+    expect(find.text('المحجة البيضاء'), findsOneWidget);
+    expect(Directionality.of(tester.element(find.text('المحجة البيضاء'))), TextDirection.rtl);
     await tester.tap(find.text('ابدأ التعلم الآن'));
     await tester.pumpAndSettle();
     expect(find.text('أركان الإيمان'), findsWidgets);
