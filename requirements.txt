@@ -1,1 +1,0 @@
-# Educational application uses Python's standard library only.
