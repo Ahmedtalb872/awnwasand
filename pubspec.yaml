@@ -28,3 +28,7 @@ flutter:
   assets:
     - assets/curriculum.json
     - assets/brand/logo.jpg
+  fonts:
+    - family: Arabic
+      fonts:
+        - asset: assets/brand/Arabic.ttf

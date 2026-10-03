@@ -63,6 +63,7 @@ void main() {
     final curriculum = Curriculum.decode(File('assets/curriculum.json').readAsStringSync());
     await tester.pumpWidget(AwnWasandApp(academy: repo, curriculum: curriculum));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('إنشاء حساب').first);
     await tester.tap(find.text('إنشاء حساب').first);
     await tester.pumpAndSettle();
     expect(find.byType(TextFormField), findsNWidgets(3));
@@ -71,5 +72,12 @@ void main() {
     expect(find.text('كلمة السر'), findsOneWidget);
     expect(find.text('البريد الإلكتروني'), findsNothing);
     expect(tester.takeException(), isNull);
+    await tester.tap(find.byTooltip('إظهار كلمة السر'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('إخفاء كلمة السر'), findsOneWidget);
+    await tester.tap(find.byTooltip('العودة'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TextFormField), findsNothing);
+    expect(find.text('ابدأ رحلتك في طلب العلم'), findsOneWidget);
   }, timeout: const Timeout(Duration(seconds: 45)));
 }

@@ -34,6 +34,9 @@ void main() {
   });
   testWidgets('welcome creates a student profile without admin access', (tester) async {
     final repo = await start(tester);
+    await tester.ensureVisible(find.text('إنشاء حساب'));
+    await tester.tap(find.text('إنشاء حساب'));
+    await tester.pumpAndSettle();
     expect(find.text('أنشئ ملف طالب للتجربة'), findsOneWidget);
     await tester.enterText(find.byType(TextFormField), 'أحمد طالب');
     final submit = find.text('إنشاء ملف وبدء التعلم');
