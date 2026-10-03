@@ -1,3 +1,1 @@
-requests
-python-dotenv
-flask
+# Educational application uses Python's standard library only.

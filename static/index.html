@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#123e35"><meta name="description" content="عون وسند: مسارات تعليمية إسلامية، دروس موثقة واختبارات ومتابعة تقدمك.">
+  <title>عون وسند | نتعلّم لنرتقي</title>
+  <link rel="stylesheet" href="/static/style.css"><script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header><a class="brand" href="#home"><span class="brand-mark">۞</span><span>عون وسند<small>نتعلّم لنرتقي</small></span></a>
+    <nav aria-label="القائمة الرئيسية"><a href="#home">الرئيسية</a><a href="#tracks">مسارات التعلم</a><a href="#library">المكتبة</a><a href="#progress">تقدمي</a></nav>
+    <button id="account" class="outline">تسجيل الدخول</button>
+  </header>
+  <div id="notice" role="status" aria-live="polite"></div>
+  <main id="view"><p class="loading">جارٍ تحميل مسارات التعلم…</p></main>
+  <footer><strong>عون وسند</strong><span>علم نافع · خطوات صغيرة · أثر مستمر</span><p>محتوى تمهيدي موثّق، يُراجع مع معلّم. المسائل الفقهية الخاصة تُعرض على أهل العلم.</p></footer>
+  <dialog id="auth"><form id="auth-form">
+    <button type="button" id="close-auth" class="close" aria-label="إغلاق">×</button>
+    <span class="eyebrow">رحلتك تبدأ بخطوة</span><h2 id="auth-title">مرحبًا بعودتك</h2><p>احفظ دروسك وتابع تقدمك من حسابك.</p>
+    <label id="name-label" hidden>الاسم<input name="name" autocomplete="name" minlength="2" maxlength="60"></label>
+    <label>البريد الإلكتروني<input name="email" type="email" dir="ltr" autocomplete="email" required maxlength="254"></label>
+    <label>كلمة المرور<input name="password" type="password" dir="ltr" autocomplete="current-password" minlength="8" maxlength="128" required></label>
+    <p id="auth-error" role="alert"></p><button type="submit" class="primary" id="auth-submit">تسجيل الدخول</button>
+    <button type="button" id="auth-toggle" class="text-button">ليس لديك حساب؟ أنشئ حسابًا</button>
+  </form></dialog>
+</body></html>

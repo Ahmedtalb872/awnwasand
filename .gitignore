@@ -1,8 +1,12 @@
 .env
+data/
+*.sqlite3
+*.sqlite3-journal
+__pycache__/
+.venv/
 sent_log.csv
 members.csv
 members_raw.txt
 members_parsed.csv
 members_unpaid.csv
 members_all.csv
-__pycache__/
