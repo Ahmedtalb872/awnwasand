@@ -78,7 +78,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       const SizedBox(height: 14), const Text('دورات شرعية، دروس منظّمة،\nوتقدّم ترافقه خطوة بخطوة.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.9)),
     ])),
     const SizedBox(height: 24),
-    const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.play_circle_outline, size: 17, color: brandMuted), SizedBox(width: 6), Text('تعلّم', style: TextStyle(color: brandMuted, fontSize: 11)), Padding(padding: EdgeInsets.symmetric(horizontal: 14), child: Text('·', style: TextStyle(color: brandMuted))), Icon(Icons.bookmark_border, size: 17, color: brandMuted), SizedBox(width: 6), Text('احتفظ بمراجعك', style: TextStyle(color: brandMuted, fontSize: 11)), Padding(padding: EdgeInsets.symmetric(horizontal: 14), child: Text('·', style: TextStyle(color: brandMuted))), Icon(Icons.insights, size: 17, color: brandMuted), SizedBox(width: 6), Text('تقدّم', style: TextStyle(color: brandMuted, fontSize: 11))]),
+    const Wrap(alignment: WrapAlignment.center, spacing: 18, runSpacing: 10, children: [
+      Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.play_circle_outline, size: 17, color: brandMuted), SizedBox(width: 6), Text('تعلّم', style: TextStyle(color: brandMuted, fontSize: 11))]),
+      Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.bookmark_border, size: 17, color: brandMuted), SizedBox(width: 6), Text('احتفظ بمراجعك', style: TextStyle(color: brandMuted, fontSize: 11))]),
+      Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.insights, size: 17, color: brandMuted), SizedBox(width: 6), Text('تقدّم', style: TextStyle(color: brandMuted, fontSize: 11))]),
+    ]),
     const SizedBox(height: 26),
     FilledButton.icon(onPressed: () => setState(() { authOpen = true; register = true; error = null; }), label: const Text('إنشاء حساب'), icon: const Icon(Icons.arrow_back, size: 18)),
     const SizedBox(height: 8), TextButton(onPressed: () => setState(() { authOpen = true; register = false; error = null; }), child: const Text('لديك حساب؟ تسجيل الدخول', style: TextStyle(fontSize: 12))),
