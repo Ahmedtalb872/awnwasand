@@ -45,6 +45,7 @@ void main() {
     await tester.enterText(fields.at(1), 'شرح تفصيلي لتعلم الأخلاق الإسلامية');
     final save = find.text('حفظ الدورة');
     await tester.scrollUntilVisible(save, 300, scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first);
+    await tester.pumpAndSettle();
     await tester.tap(save);
     await tester.pumpAndSettle();
     expect(repo.courses.any((c) => c.title == 'دورة الأخلاق'), isTrue);
