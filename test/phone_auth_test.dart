@@ -54,7 +54,7 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
     final client = SupabaseClient('https://example.supabase.co', 'test-public-key');
     final repo = Academy(await SharedPreferences.getInstance(), client: client);
-    addTearDown(() async { repo.dispose(); await client.dispose(); });
+    addTearDown(() => tester.runAsync(() async { repo.dispose(); await client.dispose(); }));
     final curriculum = Curriculum.decode(File('assets/curriculum.json').readAsStringSync());
     await tester.pumpWidget(AwnWasandApp(academy: repo, curriculum: curriculum));
     await tester.pumpAndSettle();
