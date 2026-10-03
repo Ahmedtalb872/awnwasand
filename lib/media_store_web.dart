@@ -1,8 +1,7 @@
 // Browser-only persistence: binary files are in IndexedDB, not localStorage.
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'dart:typed_data';
-import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_browser.dart';
 import 'package:video_player/video_player.dart';
 

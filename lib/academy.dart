@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -237,7 +236,7 @@ class Academy extends ChangeNotifier {
   Future<void> openFile(CourseMaterial item) async {
     requireMaterialAccess(item);
     if (isDemo) { await media.open(item.path, item.fileName, item.mime); return; }
-    final url = await client!.storage.from('course-media').createSignedUrl(item.path, 300, download: item.fileName);
+    final url = await client!.storage.from('course-media').createSignedUrl(item.path, 300);
     if (!await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication)) throw StateError('تعذر فتح الملف');
   }
   @override

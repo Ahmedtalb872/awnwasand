@@ -86,7 +86,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         for (final student in widget.academy.students) OutlinedButton.icon(onPressed: busy ? null : () => select(student.id), icon: const Icon(Icons.person_outline), label: Text('متابعة ملف ${student.name}')),
         const Divider(height: 28), OutlinedButton.icon(onPressed: busy ? null : () => select('demo-admin'), icon: const Icon(Icons.admin_panel_settings_outlined), label: const Text('تجربة لوحة الإدارة')),
       ],
-    ]))))),
+    ])))))),
     const SizedBox(height: 24), const Text('نتعلّم لنرتقي · محتوى تمهيدي يُراجع مع معلّم', textAlign: TextAlign.center, style: TextStyle(color: Colors.black54)),
   ]))))));
 }
