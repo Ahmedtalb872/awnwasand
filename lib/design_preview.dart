@@ -8,6 +8,7 @@ import 'academy.dart';
 import 'academy_models.dart';
 import 'academy_ui.dart';
 import 'brand.dart';
+import 'ui_preferences.dart';
 import 'main.dart' show LearningHome;
 import 'models.dart';
 
@@ -19,7 +20,9 @@ Future<void> main() async {
   await academy.restore();
   final curriculum = Curriculum.decode(await rootBundle.loadString('assets/curriculum.json'));
   Widget home;
-  if (screen == 'welcome') {
+  if (screen == 'settings') {
+    home = const SettingsScreen();
+  } else if (screen == 'welcome') {
     home = WelcomeScreen(academy: academy);
   } else if (screen == 'signup' || screen == 'login') {
     // No live credentials or requests are used by the signup screenshot.
@@ -35,5 +38,5 @@ Future<void> main() async {
     academy.enrollments = const [Enrollment(studentId: 'preview-student', courseId: 'preview-fiqh', completed: ['preview-material-0'])];
     home = StudentArea(academy: academy, initialSelected: screen == 'profile' ? 2 : screen == 'admin' ? 3 : screen == 'courses' ? 1 : 0, learningBuilder: (store) => LearningHome(curriculum: curriculum, store: store));
   }
-  runApp(MaterialApp(debugShowCheckedModeBanner: false, theme: academyTheme(), locale: const Locale('ar'), supportedLocales: const [Locale('ar')], localizationsDelegates: GlobalMaterialLocalizations.delegates, home: home));
+  runApp(ListenableBuilder(listenable: uiPreferences, builder: (context, _) => MaterialApp(builder: (context, child) => MediaQuery(data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(uiPreferences.fontScale)), child: child!),debugShowCheckedModeBanner: false, theme: academyTheme(), locale: const Locale('ar'), supportedLocales: const [Locale('ar')], localizationsDelegates: GlobalMaterialLocalizations.delegates, home: home)));
 }

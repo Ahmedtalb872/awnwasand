@@ -7,12 +7,14 @@ import 'models.dart';
 import 'academy.dart';
 import 'academy_ui.dart';
 import 'brand.dart';
+import 'ui_preferences.dart';
 
 const forest = brandPurple;
 const gold = brandPink;
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await uiPreferences.load();
   runApp(const AwnWasandApp());
 }
 
@@ -22,19 +24,20 @@ class AwnWasandApp extends StatelessWidget {
   final LearningStore? store;
   final Academy? academy;
   @override
-  Widget build(BuildContext context) => MaterialApp(
+  Widget build(BuildContext context) => ListenableBuilder(listenable: uiPreferences, builder: (context, _) => MaterialApp(
     title: brandName,
     debugShowCheckedModeBanner: false,
     locale: const Locale('ar'),
     supportedLocales: const [Locale('ar')],
     localizationsDelegates: GlobalMaterialLocalizations.delegates,
     theme: academyTheme(),
+    builder: (context, child) => MediaQuery(data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(uiPreferences.fontScale)), child: child!),
     home: curriculum != null && academy != null
       ? AcademyPortal(academy: academy!, learningBuilder: (store) => LearningHome(curriculum: curriculum!, store: store))
       : curriculum != null && store != null
       ? LearningHome(curriculum: curriculum!, store: store!)
       : const Bootstrap(),
-  );
+  ));
 }
 
 class Bootstrap extends StatefulWidget {
