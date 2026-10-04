@@ -27,7 +27,7 @@ ThemeData academyTheme() {
     inputDecorationTheme: InputDecorationTheme(filled: true, fillColor: const Color(0xff1d1933), contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17), labelStyle: const TextStyle(color: brandMuted, fontSize: 13), hintStyle: const TextStyle(color: brandMuted), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: brandBorder)), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: brandPurple, width: 1.5))),
     filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(minimumSize: const Size(0, 56), textStyle: const TextStyle(fontFamily: 'Cairo', fontSize: 14, fontWeight: FontWeight.w700), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))),
     outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(minimumSize: const Size(0, 52), side: const BorderSide(color: brandBorder), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))),
-    navigationBarTheme: const NavigationBarThemeData(backgroundColor: Color(0xff19152e), indicatorColor: Color(0xff423167), elevation: 0, height: 78, labelTextStyle: WidgetStatePropertyAll(TextStyle(fontFamily: 'Cairo', fontSize: 11, fontWeight: FontWeight.w600))),
+    navigationBarTheme: const NavigationBarThemeData(backgroundColor: Color(0xff19152e), indicatorColor: Color(0xff423167), elevation: 0, height: 78, iconTheme: WidgetStatePropertyAll(IconThemeData(color: brandPink, size: 24)), labelTextStyle: WidgetStatePropertyAll(TextStyle(fontFamily: 'Cairo', fontSize: 11, fontWeight: FontWeight.w600))),
     progressIndicatorTheme: const ProgressIndicatorThemeData(color: brandPink, linearTrackColor: Color(0xff38304f), borderRadius: BorderRadius.all(Radius.circular(10))),
     dividerTheme: const DividerThemeData(color: brandBorder),
   );
@@ -59,7 +59,7 @@ class BrandPanel extends StatelessWidget {
   final EdgeInsets padding;
   @override
   Widget build(BuildContext context) => ClipRRect(borderRadius: BorderRadius.circular(28), child: Container(
-    decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topRight, end: Alignment.bottomLeft, colors: [brandPurple, Color(0xff5032b0)])),
+    decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topRight, end: Alignment.bottomLeft, colors: [Color(0xff463082), Color(0xff251c44)])),
     child: Stack(children: [Positioned.fill(child: IgnorePointer(child: CustomPaint(painter: GeometryPainter()))), Padding(padding: padding, child: child)]),
   ));
 }
@@ -121,7 +121,7 @@ class AuthHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ClipPath(clipper: const HeroCurve(), child: Container(
     padding: const EdgeInsets.fromLTRB(18, 20, 18, 38),
-    decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xff8360ff), Color(0xff4726d1)])),
+    decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xff6c46e5), Color(0xff3f1bbc)])),
     child: Stack(alignment: Alignment.center, children: [
       Positioned.fill(child: IgnorePointer(child: CustomPaint(painter: GeometryPainter()))),
       Column(children: [
@@ -132,7 +132,7 @@ class AuthHero extends StatelessWidget {
           const Positioned(right: 18, bottom: 6, child: Icon(Icons.star_outline, size: 17, color: Colors.white70)),
         ])),
         const SizedBox(height: 12), Text(register ? 'ابدأ رحلة علم' : 'مرحبًا بعودتك', style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 4), Text(register ? 'حسابك الأول، وخطوتك نحو علم نافع.' : 'دروسك ومراجعك بانتظارك.', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 11)),
+        const SizedBox(height: 4), Text(register ? 'حسابك الأول، وخطوتك نحو علم نافع.' : 'دروسك ومراجعك بانتظارك.', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 11)),
       ]),
     ]),
   ));
