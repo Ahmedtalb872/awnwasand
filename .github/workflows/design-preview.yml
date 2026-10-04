@@ -15,10 +15,6 @@ jobs:
           channel: stable
           cache: true
       - run: flutter create --platforms=web --org com.awnwasand --project-name awnwasand .
-      - name: Prepare Cairo font
-        run: |
-          curl --fail --location 'https://raw.githubusercontent.com/google/fonts/main/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf' -o assets/brand/Arabic.ttf
-          python -c "import hashlib,pathlib; b=pathlib.Path('assets/brand/Arabic.ttf').read_bytes(); assert hashlib.sha1(b'blob '+str(len(b)).encode()+b'\\0'+b).hexdigest() == '25641b1c828857698457bcd9f5a102616b4e8033'"
       - run: flutter pub get
       - run: flutter analyze --no-fatal-infos
       - run: flutter test
@@ -31,6 +27,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: mahajja-ui-preview
-          path: |
-            preview/
-            assets/brand/Arabic.ttf
+          path: preview/
