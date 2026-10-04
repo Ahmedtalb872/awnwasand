@@ -153,7 +153,7 @@ class IslamicBackdrop extends StatelessWidget {
   const IslamicBackdrop({super.key, required this.child});
   final Widget child;
   @override
-  Widget build(BuildContext context) => Stack(children: [Positioned.fill(child: IgnorePointer(child: CustomPaint(painter: ArchPainter()))), child]);
+  Widget build(BuildContext context) => ColoredBox(color: brandIvory, child: Stack(children: [Positioned.fill(child: IgnorePointer(child: CustomPaint(painter: ArchPainter()))), child]));
 }
 class ArchPainter extends CustomPainter {
   @override

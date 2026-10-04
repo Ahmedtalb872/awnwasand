@@ -200,7 +200,7 @@ class _StudentAreaState extends State<StudentArea> {
         const SizedBox(height: 18), FilledButton.icon(style: FilledButton.styleFrom(backgroundColor: brandPink, foregroundColor: brandIvory, minimumSize: const Size(0, 44)), onPressed: () { if (next != null && !academy.isAdmin) { openCourse(next); } else { setState(() => selected = academy.isAdmin ? 3 : 1); } }, icon: const Icon(Icons.arrow_back, size: 16), label: Text(academy.isAdmin ? 'فتح لوحة الإدارة' : next != null ? 'متابعة الدورة' : 'استكشف الدورات')),
       ])),
       const SizedBox(height: 22),
-      Row(children: [for (final item in [(Icons.school_outlined, 'الدورات'), (Icons.play_circle_outline, 'الفيديوهات'), (Icons.folder_outlined, 'المواد')]) Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: InkWell(borderRadius: BorderRadius.circular(18), onTap: () => setState(() => selected = 1), child: Container(padding: const EdgeInsets.symmetric(vertical: 18), decoration: BoxDecoration(color: const Color(0xfff7eaf0), borderRadius: BorderRadius.circular(18)), child: Column(children: [Icon(item.$1, color: brandPink), const SizedBox(height: 8), Text(item.$2, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700))]))))]),
+      Row(children: [for (final item in [(Icons.school_outlined, 'الدورات'), (Icons.play_circle_outline, 'الفيديوهات'), (Icons.folder_outlined, 'المواد')]) Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: InkWell(borderRadius: BorderRadius.circular(18), onTap: () { if (item.$2 == 'الدورات') { setState(() => selected = 1); } else { Navigator.push(context, MaterialPageRoute<void>(builder: (_) => MaterialLibrary(academy: academy, videos: item.$2 == 'الفيديوهات'))); } }, child: Container(padding: const EdgeInsets.symmetric(vertical: 18), decoration: BoxDecoration(color: const Color(0xfff7eaf0), borderRadius: BorderRadius.circular(18)), child: Column(children: [Icon(item.$1, color: brandPink), const SizedBox(height: 8), Text(item.$2, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700))]))))]),
       SectionHeading('الدورات المتاحة', action: 'عرض الكل', onTap: () => setState(() => selected = 1)), ...academy.visibleCourses.take(3).map(courseCard),
       if (academy.visibleCourses.isEmpty) const EmptyState(icon: Icons.auto_stories_outlined, title: 'رحلة جديدة تبدأ قريبًا', description: 'ستجد الدورات هنا بمجرد نشرها من المشرف.'),
       SectionHeading('مساراتك الأساسية', action: 'تعلّم الآن', onTap: learning == null ? null : () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => widget.learningBuilder(learning!)))),
@@ -227,11 +227,11 @@ class _StudentAreaState extends State<StudentArea> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       const Text('ملف الطالب', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700)), const SizedBox(height: 20),
       Card(child: Padding(padding: const EdgeInsets.all(24), child: Column(children: [
-        Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: brandPurple24)), child: CircleAvatar(radius: 34, backgroundColor: brandPink, child: Text(user.name.substring(0, 1), style: const TextStyle(fontSize: 28, color: brandIvory)))), const SizedBox(height: 14),
+        Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: brandBorder)), child: CircleAvatar(radius: 34, backgroundColor: brandPink, child: Text(user.name.substring(0, 1), style: const TextStyle(fontSize: 28, color: brandIvory)))), const SizedBox(height: 14),
         Text(user.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: brandPurple)), const SizedBox(height: 4),
         Text('طالب علم · ${user.level}', style: const TextStyle(fontSize: 11, color: brandMuted)), if (user.phone.isNotEmpty) Text(user.phone, textDirection: TextDirection.ltr, style: const TextStyle(color: brandMuted, fontSize: 11)),
         if (user.bio.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 12), child: Text(user.bio, textAlign: TextAlign.center, style: const TextStyle(color: brandMuted, fontSize: 12))),
-        const SizedBox(height: 18), OutlinedButton.icon(style: OutlinedButton.styleFrom(foregroundColor: brandPurple, side: const BorderSide(color: brandPurple24), minimumSize: const Size(0, 42)), onPressed: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => ProfileEditor(academy: academy))), icon: const Icon(Icons.edit_outlined, size: 16), label: const Text('تعديل ملفي', style: TextStyle(fontSize: 12))),
+        const SizedBox(height: 18), OutlinedButton.icon(style: OutlinedButton.styleFrom(foregroundColor: brandPurple, side: const BorderSide(color: brandBorder), minimumSize: const Size(0, 42)), onPressed: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => ProfileEditor(academy: academy))), icon: const Icon(Icons.edit_outlined, size: 16), label: const Text('تعديل ملفي', style: TextStyle(fontSize: 12))),
       ]))),
       const SizedBox(height: 20), Row(children: [stat('${entries.length}', 'دورات مسجّل بها', Icons.auto_stories_outlined), const SizedBox(width: 12), stat('$completed', 'مواد مكتملة', Icons.task_alt)]), const SizedBox(height: 12),
       Card(child: Padding(padding: const EdgeInsets.all(22), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -490,4 +490,18 @@ class SettingsScreen extends StatelessWidget {
     Card(child: ListTile(leading: const Icon(Icons.info_outline), title: const Text('عن المحجة البيضاء'), trailing: const Icon(Icons.chevron_left), onTap: () => showAboutDialog(context: context, applicationName: brandName, applicationVersion: '1.0.0', applicationIcon: const Icon(Icons.auto_stories, color: brandPurple), children: [const Text('منصة لطلب العلم الشرعي، تضم الدورات والفيديوهات والمراجع وملفًا لتقدّم كل طالب.')]))),
     const SizedBox(height: 32), const Center(child: LogoMedallion(size: 160)),
   ]))));
+}
+
+class MaterialLibrary extends StatelessWidget {
+  const MaterialLibrary({super.key, required this.academy, this.videos = false});
+  final Academy academy;
+  final bool videos;
+  @override
+  Widget build(BuildContext context) {
+    final entries = [for (final course in academy.visibleCourses) for (final material in course.materials) if ((material.kind == 'video') == videos) (course, material)];
+    return Scaffold(appBar: AppBar(title: Text(videos ? 'الفيديوهات' : 'المواد والمراجع')), body: ListenableBuilder(listenable: academy, builder: (context, _) => ListView(padding: const EdgeInsets.all(20), children: [
+      if (entries.isEmpty) EmptyState(icon: videos ? Icons.play_circle_outline : Icons.folder_outlined, title: 'لا يوجد محتوى متاح بعد', description: 'ستظهر المواد المتاحة هنا عند إضافتها إلى الدورات.'),
+      for (final entry in entries) Card(child: ListTile(leading: Icon(videos ? Icons.play_circle_outline : Icons.description_outlined, color: brandPink), title: Text(entry.$2.title), subtitle: Text(entry.$1.title), trailing: const Icon(Icons.chevron_left), onTap: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => CourseScreen(academy: academy, courseId: entry.$1.id))))),
+    ])));
+  }
 }
