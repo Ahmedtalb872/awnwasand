@@ -29,6 +29,6 @@ flutter:
     - assets/curriculum.json
     - assets/brand/logo.jpg
   fonts:
-    - family: Arabic
+    - family: Cairo
       fonts:
         - asset: assets/brand/Arabic.ttf

@@ -16,15 +16,15 @@ ThemeData academyTheme() {
     secondaryContainer: const Color(0xfff5e1e4),
   );
   return ThemeData(
-    useMaterial3: true, fontFamily: 'Arabic', colorScheme: scheme,
+    useMaterial3: true, fontFamily: 'Cairo', colorScheme: scheme,
     scaffoldBackgroundColor: brandIvory,
     textTheme: const TextTheme(bodyMedium: TextStyle(fontSize: 13, height: 1.7), bodyLarge: TextStyle(fontSize: 15, height: 1.6), titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w700), titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
     appBarTheme: const AppBarTheme(backgroundColor: brandIvory, foregroundColor: brandPurple, centerTitle: false, elevation: 0, scrolledUnderElevation: 0, toolbarHeight: 76),
     cardTheme: CardTheme(color: Colors.white, surfaceTintColor: Colors.transparent, elevation: 0, margin: const EdgeInsets.symmetric(vertical: 8), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24), side: const BorderSide(color: brandBorder))),
     inputDecorationTheme: InputDecorationTheme(filled: true, fillColor: const Color(0xfff5f4f8), contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17), labelStyle: const TextStyle(color: brandMuted, fontSize: 13), hintStyle: const TextStyle(color: brandMuted), border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: brandBorder)), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: brandPurple, width: 1.5))),
-    filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(minimumSize: const Size(0, 56), textStyle: const TextStyle(fontFamily: 'Arabic', fontSize: 14, fontWeight: FontWeight.w700), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))),
+    filledButtonTheme: FilledButtonThemeData(style: FilledButton.styleFrom(minimumSize: const Size(0, 56), textStyle: const TextStyle(fontFamily: 'Cairo', fontSize: 14, fontWeight: FontWeight.w700), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))),
     outlinedButtonTheme: OutlinedButtonThemeData(style: OutlinedButton.styleFrom(minimumSize: const Size(0, 52), side: const BorderSide(color: brandBorder), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))),
-    navigationBarTheme: const NavigationBarThemeData(backgroundColor: Colors.white, indicatorColor: Color(0xfff0eaf5), elevation: 0, height: 78, labelTextStyle: WidgetStatePropertyAll(TextStyle(fontFamily: 'Arabic', fontSize: 11, fontWeight: FontWeight.w600))),
+    navigationBarTheme: const NavigationBarThemeData(backgroundColor: Colors.white, indicatorColor: Color(0xfff0eaf5), elevation: 0, height: 78, labelTextStyle: WidgetStatePropertyAll(TextStyle(fontFamily: 'Cairo', fontSize: 11, fontWeight: FontWeight.w600))),
     progressIndicatorTheme: const ProgressIndicatorThemeData(color: brandPink, linearTrackColor: Color(0xffeeebf4), borderRadius: BorderRadius.all(Radius.circular(10))),
     dividerTheme: const DividerThemeData(color: brandBorder),
   );
