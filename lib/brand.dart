@@ -135,7 +135,7 @@ class AuthHero extends StatelessWidget {
         const SizedBox(height: 4), Text(register ? 'حسابك الأول، وخطوتك نحو علم نافع.' : 'دروسك ومراجعك بانتظارك.', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 11)),
       ]),
     ]),
-  )));
+  ));
 }
 
 class HeroCurve extends CustomClipper<Path> {

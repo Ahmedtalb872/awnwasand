@@ -123,7 +123,7 @@ class Feature extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-    decoration: BoxDecoration(color: brandSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: const brandBorder)),
+    decoration: BoxDecoration(color: brandSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: brandBorder)),
     child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(icon, size: 22, color: academyGreen), const SizedBox(width: 10), Text(title, style: const TextStyle(fontWeight: FontWeight.w600))]),
   );
 }
@@ -227,7 +227,7 @@ class _StudentAreaState extends State<StudentArea> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       const Text('ملف الطالب', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700)), const SizedBox(height: 20),
       BrandPanel(child: Column(children: [
-        Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white24)), child: CircleAvatar(radius: 34, backgroundColor: brandPink, child: Text(user.name.substring(0, 1), style: const TextStyle(fontSize: 28, color: brandPurple)))), const SizedBox(height: 14),
+        Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white24)), child: CircleAvatar(radius: 34, backgroundColor: brandPink, child: Text(user.name.substring(0, 1), style: const TextStyle(fontSize: 28, color: brandIvory)))), const SizedBox(height: 14),
         Text(user.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white)), const SizedBox(height: 4),
         Text('طالب علم · ${user.level}', style: const TextStyle(fontSize: 11, color: Colors.white70)), if (user.phone.isNotEmpty) Text(user.phone, textDirection: TextDirection.ltr, style: const TextStyle(color: Colors.white70, fontSize: 11)),
         if (user.bio.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 12), child: Text(user.bio, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 12))),
