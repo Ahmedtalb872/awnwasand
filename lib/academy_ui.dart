@@ -498,10 +498,11 @@ class MaterialLibrary extends StatelessWidget {
   final bool videos;
   @override
   Widget build(BuildContext context) {
-    final entries = [for (final course in academy.visibleCourses) for (final material in course.materials) if ((material.kind == 'video') == videos) (course, material)];
-    return Scaffold(appBar: AppBar(title: Text(videos ? 'الفيديوهات' : 'المواد والمراجع')), body: ListenableBuilder(listenable: academy, builder: (context, _) => ListView(padding: const EdgeInsets.all(20), children: [
+    return Scaffold(appBar: AppBar(title: Text(videos ? 'الفيديوهات' : 'المواد والمراجع')), body: ListenableBuilder(listenable: academy, builder: (context, _) {
+      final entries = [for (final course in academy.visibleCourses) for (final material in course.materials) if ((material.kind == 'video') == videos) (course, material)];
+      return ListView(padding: const EdgeInsets.all(20), children: [
       if (entries.isEmpty) EmptyState(icon: videos ? Icons.play_circle_outline : Icons.folder_outlined, title: 'لا يوجد محتوى متاح بعد', description: 'ستظهر المواد المتاحة هنا عند إضافتها إلى الدورات.'),
       for (final entry in entries) Card(child: ListTile(leading: Icon(videos ? Icons.play_circle_outline : Icons.description_outlined, color: brandPink), title: Text(entry.$2.title), subtitle: Text(entry.$1.title), trailing: const Icon(Icons.chevron_left), onTap: () => Navigator.push(context, MaterialPageRoute<void>(builder: (_) => CourseScreen(academy: academy, courseId: entry.$1.id))))),
-    ])));
+    ]); }));
   }
 }

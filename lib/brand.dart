@@ -175,3 +175,13 @@ class ArchPainter extends CustomPainter {
   @override
   bool shouldRepaint(ArchPainter oldDelegate) => false;
 }
+
+class BrandedSplash extends StatelessWidget {
+  const BrandedSplash({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(backgroundColor: brandPurple, body: SafeArea(child: Stack(children: [
+    Positioned.fill(child: IgnorePointer(child: CustomPaint(painter: GeometryPainter()))),
+    Positioned(bottom: 28, left: 0, right: 0, child: Icon(Icons.mosque_outlined, size: 210, color: brandPink.withValues(alpha: .13))),
+    const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [LogoMedallion(size: 280), SizedBox(height: 32), Text('رحلة علمية مباركة', style: TextStyle(color: Colors.white70, fontSize: 16)), SizedBox(height: 24), SizedBox(width: 100, child: LinearProgressIndicator(minHeight: 3))])),
+  ])));
+}

@@ -68,9 +68,8 @@ class _BootstrapState extends State<Bootstrap> {
   @override
   Widget build(BuildContext context) {
     if (academy != null && curriculum != null) return AcademyPortal(academy: academy!, learningBuilder: (store) => LearningHome(curriculum: curriculum!, store: store));
-    return Scaffold(body: Center(child: error == null
-      ? const CircularProgressIndicator()
-      : Column(mainAxisSize: MainAxisSize.min, children: [
+    if (error == null) return const BrandedSplash();
+    return Scaffold(body: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
           const Text('تعذر تحميل المحتوى. حاول مجددًا.'),
           const SizedBox(height: 16),
           FilledButton(onPressed: load, child: const Text('إعادة المحاولة')),

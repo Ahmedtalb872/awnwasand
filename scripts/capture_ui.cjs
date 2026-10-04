@@ -3,7 +3,7 @@ const fs = require('node:fs');
 (async () => {
   fs.mkdirSync('preview', { recursive: true });
   const browser = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage', '--enable-unsafe-swiftshader'] });
-  for (const screen of ['welcome', 'signup', 'login', 'home', 'courses', 'profile', 'admin', 'settings']) {
+  for (const screen of ['splash', 'welcome', 'signup', 'login', 'home', 'courses', 'profile', 'admin', 'settings', 'materials']) {
     const page = await browser.newPage({ viewport: { width: 393, height: 852 }, deviceScaleFactor: 2 });
     const errors = [];
     page.on('pageerror', e => errors.push(e.message));

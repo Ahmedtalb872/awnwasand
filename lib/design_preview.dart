@@ -20,7 +20,9 @@ Future<void> main() async {
   await academy.restore();
   final curriculum = Curriculum.decode(await rootBundle.loadString('assets/curriculum.json'));
   Widget home;
-  if (screen == 'settings') {
+  if (screen == 'splash') {
+    home = const BrandedSplash();
+  } else if (screen == 'settings') {
     home = const SettingsScreen();
   } else if (screen == 'welcome') {
     home = WelcomeScreen(academy: academy);
@@ -36,7 +38,7 @@ Future<void> main() async {
       const AcademyCourse(id: 'preview-seerah', title: 'السيرة النبوية', description: 'محطات من السيرة، ودروس نستضيء بها في حياتنا.', teacher: 'فريق المحجة البيضاء', published: true),
     ];
     academy.enrollments = const [Enrollment(studentId: 'preview-student', courseId: 'preview-fiqh', completed: ['preview-material-0'])];
-    home = StudentArea(academy: academy, initialSelected: screen == 'profile' ? 2 : screen == 'admin' ? 3 : screen == 'courses' ? 1 : 0, learningBuilder: (store) => LearningHome(curriculum: curriculum, store: store));
+    home = screen == 'materials' ? MaterialLibrary(academy: academy) : StudentArea(academy: academy, initialSelected: screen == 'profile' ? 2 : screen == 'admin' ? 3 : screen == 'courses' ? 1 : 0, learningBuilder: (store) => LearningHome(curriculum: curriculum, store: store));
   }
   runApp(ListenableBuilder(listenable: uiPreferences, builder: (context, _) => MaterialApp(builder: (context, child) => MediaQuery(data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(uiPreferences.fontScale)), child: child!),debugShowCheckedModeBanner: false, theme: academyTheme(), locale: const Locale('ar'), supportedLocales: const [Locale('ar')], localizationsDelegates: GlobalMaterialLocalizations.delegates, home: home)));
 }
