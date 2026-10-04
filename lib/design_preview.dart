@@ -21,9 +21,9 @@ Future<void> main() async {
   Widget home;
   if (screen == 'welcome') {
     home = WelcomeScreen(academy: academy);
-  } else if (screen == 'signup') {
+  } else if (screen == 'signup' || screen == 'login') {
     // No live credentials or requests are used by the signup screenshot.
-    home = WelcomeScreen(academy: Academy(preferences, client: SupabaseClient('https://preview.invalid', 'preview-only')), startWithAuth: true);
+    home = WelcomeScreen(academy: Academy(preferences, client: SupabaseClient('https://preview.invalid', 'preview-only')), startWithAuth: true, initialRegister: screen == 'signup');
   } else {
     academy.students = const [StudentProfile(id: 'preview-student', name: 'أحمد محمد'), StudentProfile(id: 'preview-student-2', name: 'يوسف أحمد')];
     academy.user = screen == 'admin' ? const StudentProfile(id: 'preview-admin', name: 'المشرف', role: 'admin') : academy.students.first;

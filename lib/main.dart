@@ -157,7 +157,7 @@ class _LearningHomeState extends State<LearningHome> {
     ]);
   }
 
-  Widget metric(String value, String label) => Container(width: 110, padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)), child: Column(children: [Text(value, style: const TextStyle(fontSize: 28, color: forest, fontWeight: FontWeight.bold)), Text(label)]));
+  Widget metric(String value, String label) => Container(width: 110, padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: brandSurface, borderRadius: BorderRadius.circular(14)), child: Column(children: [Text(value, style: const TextStyle(fontSize: 28, color: forest, fontWeight: FontWeight.bold)), Text(label)]));
 
   Widget library() {
     final list = data.lessons.where((l) => (!savedOnly || store.bookmarks.contains(l.id)) && (track == null || l.track == track) && '${l.title} ${l.paragraphs.join(' ')}'.contains(query)).toList();

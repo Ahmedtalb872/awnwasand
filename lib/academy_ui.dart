@@ -36,9 +36,9 @@ class AcademyPortal extends StatelessWidget {
 }
 
 class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({super.key, required this.academy, this.startWithAuth = false});
+  const WelcomeScreen({super.key, required this.academy, this.startWithAuth = false, this.initialRegister = true});
   final Academy academy;
-  final bool startWithAuth;
+  final bool startWithAuth, initialRegister;
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
@@ -48,7 +48,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   bool register = false, busy = false, authOpen = false, passwordVisible = false;
   String? error;
   @override
-  void initState() { super.initState(); authOpen = widget.startWithAuth; register = widget.startWithAuth; }
+  void initState() { super.initState(); authOpen = widget.startWithAuth; register = widget.initialRegister; }
   @override
   void dispose() { name.dispose(); phone.dispose(); password.dispose(); super.dispose(); }
   Future<void> submit() async {
@@ -84,16 +84,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.insights, size: 17, color: brandMuted), SizedBox(width: 6), Text('تقدّم', style: TextStyle(color: brandMuted, fontSize: 11))]),
     ]),
     const SizedBox(height: 26),
-    FilledButton.icon(onPressed: () => setState(() { authOpen = true; register = true; error = null; }), label: const Text('إنشاء حساب'), icon: const Icon(Icons.arrow_back, size: 18)),
+    GlowButton(onPressed: () => setState(() { authOpen = true; register = true; error = null; }), child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Text('إنشاء حساب'), SizedBox(width: 10), Icon(Icons.arrow_back, size: 18)])),
     const SizedBox(height: 8), TextButton(onPressed: () => setState(() { authOpen = true; register = false; error = null; }), child: const Text('لديك حساب؟ تسجيل الدخول', style: TextStyle(fontSize: 12))),
     const SizedBox(height: 4),
   ])))))))));
 
-  Widget authPage() => Scaffold(backgroundColor: Colors.white, appBar: AppBar(backgroundColor: Colors.white, leading: IconButton(tooltip: 'العودة', onPressed: busy ? null : () => setState(() => authOpen = false), icon: const Icon(Icons.arrow_back)), title: Text(register ? 'حساب جديد' : 'تسجيل الدخول', style: const TextStyle(fontSize: 15)), actions: const [Padding(padding: EdgeInsetsDirectional.only(end: 24), child: Icon(Icons.auto_stories_outlined, size: 23))]), body: SafeArea(child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 480), child: SingleChildScrollView(padding: const EdgeInsets.fromLTRB(28, 12, 28, 28), child: AutofillGroup(child: Form(key: form, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-    const SizedBox(height: 8), Align(alignment: AlignmentDirectional.centerStart, child: Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: brandIvory, borderRadius: BorderRadius.circular(18)), child: Icon(register ? Icons.person_add_alt_1_outlined : Icons.waving_hand_outlined, size: 30, color: brandPurple))),
-    const SizedBox(height: 24), Text(widget.academy.isDemo ? 'أنشئ ملف طالب للتجربة' : register ? 'مكانك في رحلة العلم' : 'مرحبًا بعودتك', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w700, height: 1.6)),
-    const SizedBox(height: 8), Text(register ? 'خطوة بسيطة، وتبدأ رحلتك مع المحجة البيضاء.' : 'ادخل إلى حسابك، وتابع من حيث توقفت.', style: const TextStyle(color: brandMuted, fontSize: 12)),
-    const SizedBox(height: 30),
+  Widget authPage() => Scaffold(backgroundColor: brandIvory, appBar: AppBar(backgroundColor: brandIvory, leading: IconButton(tooltip: 'العودة', onPressed: busy ? null : () => setState(() => authOpen = false), icon: const Icon(Icons.arrow_back)), title: Text(register ? 'حساب جديد' : 'تسجيل الدخول', style: const TextStyle(fontSize: 15)), actions: const [Padding(padding: EdgeInsetsDirectional.only(end: 24), child: Icon(Icons.auto_stories_outlined, size: 23))]), body: SafeArea(child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 480), child: SingleChildScrollView(padding: const EdgeInsets.fromLTRB(28, 12, 28, 28), child: AutofillGroup(child: Form(key: form, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    AuthHero(register: register), const SizedBox(height: 22),
+    if (widget.academy.isDemo) const Padding(padding: EdgeInsets.only(bottom: 16), child: Text('أنشئ ملف طالب للتجربة', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700))),
     if (widget.academy.isDemo) const DemoNotice(),
     if (widget.academy.setupIssue != null) Container(padding: const EdgeInsets.all(16), margin: const EdgeInsets.only(bottom: 20), decoration: BoxDecoration(color: brandIvory, borderRadius: BorderRadius.circular(16)), child: Column(children: [Text(widget.academy.setupIssue!, style: const TextStyle(fontSize: 12)), TextButton(onPressed: busy ? null : () async { setState(() => busy = true); await widget.academy.checkSchema(); if (mounted) setState(() => busy = false); }, child: const Text('التحقق مجددًا'))])),
     if (widget.academy.isDemo || register) ...[
@@ -101,12 +99,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       const SizedBox(height: 16),
     ],
     if (!widget.academy.isDemo) ...[
-      TextFormField(controller: phone, keyboardType: TextInputType.phone, textInputAction: TextInputAction.next, textDirection: TextDirection.ltr, autofillHints: const [AutofillHints.telephoneNumber], decoration: const InputDecoration(labelText: 'رقم الهاتف', hintText: '+212612345678', prefixIcon: Icon(Icons.phone_outlined, size: 20), helperText: 'مع رمز البلد، مثل +212'), validator: (value) { try { Academy.normalizePhone(value ?? ''); return null; } on ArgumentError catch (e) { return e.message.toString(); } }),
+      TextFormField(controller: phone, keyboardType: TextInputType.phone, textInputAction: TextInputAction.next, textDirection: TextDirection.ltr, autofillHints: const [AutofillHints.telephoneNumber], decoration: const InputDecoration(labelText: 'رقم الهاتف', hintText: '+212612345678', prefixIcon: Icon(Icons.phone_outlined, size: 20), helperText: 'مع رمز البلد، مثل \u200e+212'), validator: (value) { try { Academy.normalizePhone(value ?? ''); return null; } on ArgumentError catch (e) { return e.message.toString(); } }),
       const SizedBox(height: 16),
       TextFormField(controller: password, obscureText: !passwordVisible, textInputAction: TextInputAction.done, autofillHints: [register ? AutofillHints.newPassword : AutofillHints.password], onFieldSubmitted: (_) { if (!busy && widget.academy.setupIssue == null) submit(); }, decoration: InputDecoration(labelText: 'كلمة السر', prefixIcon: const Icon(Icons.lock_outline, size: 20), helperText: register ? '8 أحرف على الأقل' : null, suffixIcon: IconButton(tooltip: passwordVisible ? 'إخفاء كلمة السر' : 'إظهار كلمة السر', onPressed: () => setState(() => passwordVisible = !passwordVisible), icon: Icon(passwordVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 20))), validator: (value) => (value?.length ?? 0) < 8 ? '8 أحرف على الأقل' : null),
     ],
-    if (error != null) Container(margin: const EdgeInsets.only(top: 20), padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: const Color(0xfffff1f1), borderRadius: BorderRadius.circular(14)), child: Text(error!, style: const TextStyle(color: Color(0xffa53545), fontSize: 12))),
-    const SizedBox(height: 28), FilledButton(onPressed: busy || widget.academy.setupIssue != null ? null : submit, child: busy ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : Text(widget.academy.isDemo ? 'إنشاء ملف وبدء التعلم' : register ? 'إنشاء حساب' : 'تسجيل الدخول')),
+    if (error != null) Container(margin: const EdgeInsets.only(top: 20), padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: const Color(0xff3b2033), borderRadius: BorderRadius.circular(14)), child: Text(error!, style: const TextStyle(color: Color(0xffffb4c3), fontSize: 12))),
+    const SizedBox(height: 28), GlowButton(onPressed: busy || widget.academy.setupIssue != null ? null : submit, child: busy ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : Text(widget.academy.isDemo ? 'إنشاء ملف وبدء التعلم' : register ? 'إنشاء حساب' : 'تسجيل الدخول')),
     if (!widget.academy.isDemo) ...[const SizedBox(height: 12), TextButton(onPressed: busy ? null : () => setState(() { register = !register; error = null; }), child: Text(register ? 'لدي حساب بالفعل' : 'ليس لدي حساب؛ إنشاء حساب', style: const TextStyle(fontSize: 12)))],
     if (widget.academy.isDemo) ...[
       const SizedBox(height: 20), for (final student in widget.academy.students) OutlinedButton.icon(onPressed: busy ? null : () => select(student.id), icon: const Icon(Icons.person_outline), label: Text('متابعة ملف ${student.name}')),
@@ -125,14 +123,14 @@ class Feature extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xffe9e3e6))),
+    decoration: BoxDecoration(color: brandSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: const brandBorder)),
     child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(icon, size: 22, color: academyGreen), const SizedBox(width: 10), Text(title, style: const TextStyle(fontWeight: FontWeight.w600))]),
   );
 }
 class DemoNotice extends StatelessWidget {
   const DemoNotice({super.key});
   @override
-  Widget build(BuildContext context) => Container(margin: const EdgeInsets.only(bottom: 18), padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10), decoration: BoxDecoration(color: const Color(0xffeeebf5), borderRadius: BorderRadius.circular(12)), child: const Row(children: [Icon(Icons.info_outline, size: 16), SizedBox(width: 8), Expanded(child: Text('وضع تجريبي · البيانات محفوظة على هذا الجهاز', style: TextStyle(fontSize: 10)))]));
+  Widget build(BuildContext context) => Container(margin: const EdgeInsets.only(bottom: 18), padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10), decoration: BoxDecoration(color: const Color(0xff27213f), borderRadius: BorderRadius.circular(12)), child: const Row(children: [Icon(Icons.info_outline, size: 16), SizedBox(width: 8), Expanded(child: Text('وضع تجريبي · البيانات محفوظة على هذا الجهاز', style: TextStyle(fontSize: 10)))]));
 }
 
 class StudentArea extends StatefulWidget {
@@ -176,7 +174,7 @@ class _StudentAreaState extends State<StudentArea> {
     final icon = course.title.contains('قرآن') ? Icons.auto_stories_outlined : course.title.contains('سيرة') ? Icons.mosque_outlined : Icons.menu_book_outlined;
     return Card(child: InkWell(borderRadius: BorderRadius.circular(24), onTap: () => openCourse(course), child: Padding(padding: const EdgeInsets.all(18), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Container(width: 70, height: 84, decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xfff2e5ea), Color(0xffeae5f2)], begin: Alignment.topRight, end: Alignment.bottomLeft), borderRadius: BorderRadius.circular(18)), child: Icon(icon, color: brandPurple, size: 34)),
+        Container(width: 70, height: 84, decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xff443167), Color(0xff29234d)], begin: Alignment.topRight, end: Alignment.bottomLeft), borderRadius: BorderRadius.circular(18)), child: Icon(icon, color: brandPink, size: 34)),
         const SizedBox(width: 16), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: brandIvory, borderRadius: BorderRadius.circular(6)), child: Text(course.level, style: const TextStyle(fontSize: 9, color: brandMuted))),
           const SizedBox(height: 7), Text(course.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
@@ -184,10 +182,10 @@ class _StudentAreaState extends State<StudentArea> {
         ])),
       ]), const SizedBox(height: 16),
       Row(children: [const Icon(Icons.person_outline, size: 14, color: brandMuted), const SizedBox(width: 5), Expanded(child: Text(course.teacher.isEmpty ? 'المحجة البيضاء' : course.teacher, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 10, color: brandMuted))), Text(enrollment == null ? 'عرض الدورة' : 'متابعة', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700)), const SizedBox(width: 4), const Icon(Icons.arrow_back, size: 15)]),
-      if (enrollment != null) ...[const SizedBox(height: 14), LinearProgressIndicator(value: count == 0 ? 0 : (completed / count).clamp(0.0, 1.0).toDouble(), minHeight: 4), const SizedBox(height: 6), Text('$completed / $count مواد مكتملة', style: const TextStyle(fontSize: 10, color: brandMuted))],
+      if (enrollment != null) ...[const SizedBox(height: 14), LinearProgressIndicator(value: count == 0 ? 0 : (completed / count).clamp(0.0, 1.0).toDouble(), minHeight: 4), const SizedBox(height: 6), Text('$completed من $count مواد مكتملة', style: const TextStyle(fontSize: 10, color: brandMuted))],
     ]))));
   }
-  Widget stat(String value, String label, IconData icon) => Expanded(child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: brandBorder)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(icon, size: 22, color: brandPurple), const SizedBox(height: 12), Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, height: 1.2)), const SizedBox(height: 5), Text(label, style: const TextStyle(fontSize: 10, color: brandMuted))])));
+  Widget stat(String value, String label, IconData icon) => Expanded(child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18), decoration: BoxDecoration(color: brandSurface, borderRadius: BorderRadius.circular(20), border: Border.all(color: brandBorder)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(icon, size: 22, color: brandPurple), const SizedBox(height: 12), Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, height: 1.2)), const SizedBox(height: 5), Text(label, style: const TextStyle(fontSize: 10, color: brandMuted))])));
   Widget home() {
     final enrolled = academy.visibleCourses.where((c) => academy.enrollment(c.id) != null).toList();
     final next = enrolled.where((c) => academy.enrollment(c.id)!.completed.length < c.materials.length).firstOrNull;
@@ -201,7 +199,7 @@ class _StudentAreaState extends State<StudentArea> {
         const SizedBox(height: 8),
         if (next != null) ...[Row(children: [const Expanded(child: Text('تابع تعلّمك', style: TextStyle(color: Colors.white70, fontSize: 11))), Text('${(progress * 100).round()}%', style: const TextStyle(color: brandPink, fontSize: 12))]), const SizedBox(height: 8), LinearProgressIndicator(value: progress, minHeight: 4)]
         else Text(academy.isAdmin ? 'جهّز المحتوى، ثم انشره للطلاب.' : 'اختر دورة، وابدأ رحلة تعلّم على مهل.', style: const TextStyle(color: Colors.white70, fontSize: 12)),
-        const SizedBox(height: 18), FilledButton.icon(style: FilledButton.styleFrom(backgroundColor: brandPink, foregroundColor: brandPurple, minimumSize: const Size(0, 44)), onPressed: () { if (next != null && !academy.isAdmin) { openCourse(next); } else { setState(() => selected = academy.isAdmin ? 3 : 1); } }, icon: const Icon(Icons.arrow_back, size: 16), label: Text(academy.isAdmin ? 'فتح لوحة الإدارة' : next != null ? 'متابعة الدورة' : 'استكشف الدورات')),
+        const SizedBox(height: 18), FilledButton.icon(style: FilledButton.styleFrom(backgroundColor: brandPink, foregroundColor: brandIvory, minimumSize: const Size(0, 44)), onPressed: () { if (next != null && !academy.isAdmin) { openCourse(next); } else { setState(() => selected = academy.isAdmin ? 3 : 1); } }, icon: const Icon(Icons.arrow_back, size: 16), label: Text(academy.isAdmin ? 'فتح لوحة الإدارة' : next != null ? 'متابعة الدورة' : 'استكشف الدورات')),
       ])),
       SectionHeading('الدورات المتاحة', action: 'عرض الكل', onTap: () => setState(() => selected = 1)), ...academy.visibleCourses.take(3).map(courseCard),
       if (academy.visibleCourses.isEmpty) const EmptyState(icon: Icons.auto_stories_outlined, title: 'رحلة جديدة تبدأ قريبًا', description: 'ستجد الدورات هنا بمجرد نشرها من المشرف.'),
